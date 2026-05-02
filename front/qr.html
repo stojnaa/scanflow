@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScanFlow – QR Terminal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <div class="page active" id="page-qr">
+    <div class="content no-nav">
+      <div class="qr-wrap">
+        <div class="auth-logo">ScanFlow</div>
+        <div class="section-label">QR Terminal</div>
+
+        <div class="qr-box">
+          <div class="qr-icon">⬛</div>
+          <div class="qr-lbl">To Do – dinamički QR kod</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary qr-logout" onclick="logout()">🚪 Odjava</button>
+  </div>
+
+</div>
+
+<script>
+  function logout() {
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

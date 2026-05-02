@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScanFlow – Prijava</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Login ── -->
+  <div class="page active" id="page-login">
+    <div class="auth-wrap">
+      <div class="auth-logo">ScanFlow</div>
+      <div class="auth-tagline">Sistem za upravljanje prisustvom</div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label for="login-user">Korisničko ime</label>
+          <input type="text" id="login-user" placeholder="npr. jdoe" required />
+        </div>
+        <div class="input-group">
+          <label for="login-pass">Lozinka</label>
+          <input type="password" id="login-pass" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-16">Prijavi se</button>
+      </form>
+
+      <div class="auth-divider">ili</div>
+
+      <button class="btn btn-secondary" onclick="navigate('page-signup')">Registruj se</button>
+
+      <!-- Demo  -->
+      <div class="auth-divider auth-divider--demo">demo pristup</div>
+      <div class="demo-role-btns">
+        <button class="btn btn-secondary" onclick="loginAs('worker')">👷 Radnik</button>
+        <button class="btn btn-secondary" onclick="loginAs('manager')">🧑‍💼 Menadžer</button>
+        <button class="btn btn-secondary" onclick="loginAs('admin')">🔐 Admin</button>
+        <button class="btn btn-secondary" onclick="loginAs('qr')">📷 QR kod</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sign Up ── -->
+  <div class="page" id="page-signup">
+    <div class="auth-wrap">
+      <div class="auth-logo">ScanFlow</div>
+      <div class="auth-tagline">Kreiraj novi nalog</div>
+
+      <form onsubmit="handleSignup(event)">
+        <div class="input-group">
+          <label>Ime</label>
+          <input type="text" placeholder="npr. Jovan" required />
+        </div>
+        <div class="input-group">
+          <label>Prezime</label>
+          <input type="text" placeholder="npr. Đorđević" required />
+        </div>
+        <div class="input-group">
+          <label>Korisničko ime</label>
+          <input type="text" placeholder="npr. jdjordjevic" required />
+        </div>
+        <div class="input-group">
+          <label>Lozinka</label>
+          <input type="password" id="signup-pass" placeholder="••••••••" required />
+        </div>
+        <div class="input-group">
+          <label>Potvrda lozinke</label>
+          <input type="password" id="signup-pass-confirm" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-16">Registruj se</button>
+      </form>
+
+      <div class="auth-divider">već imaš nalog?</div>
+      <button class="btn btn-secondary" onclick="navigate('page-login')">Prijavi se</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentPage = 'page-login';
+
+  function navigate(pageId) {
+    document.getElementById(currentPage).classList.remove('active');
+    currentPage = pageId;
+    document.getElementById(pageId).classList.add('active');
+  }
+
+  function handleLogin(event) {
+    event.preventDefault();
+    // Ovde ce ici poziv ka backendu
+    loginAs('worker');
+  }
+
+  function handleSignup(event) {
+    event.preventDefault();
+    const pass        = document.getElementById('signup-pass').value;
+    const passConfirm = document.getElementById('signup-pass-confirm').value;
+    if (pass !== passConfirm) {
+      alert('Lozinke se ne podudaraju!');
+      return;
+    }
+    // Ovde ce ici poziv ka backendu
+    loginAs('worker');
+  }
+
+  function loginAs(role) {
+    if (role === 'worker')  window.location.href = 'worker.html';
+    if (role === 'manager') window.location.href = 'manager.html';
+    if (role === 'admin')   window.location.href = 'admin.html';
+    if (role === 'qr')      window.location.href = 'qr.html';
+  }
+</script>
+</body>
+</html>
