@@ -41,74 +41,272 @@
     </div>
 
     <!  5.2 Zaposleni  >
-    <div class="page" id="page-zaposleni">
-      <div class="topbar">
-        <span class="logo">ScanFlow</span>
-        <span class="role-badge role-badgeadmin">Admin</span>
-      </div>
-      <div class="content">
-        <div class="section-label">Svi zaposleni</div>
-        <div class="admin-grid">
-          <div class="admin-radnik-card">
-            <div class="admin-radnik-header">
-              <div class="admin-radnik-ime">Jovan Đorđević</div>
-              <span class="status-badge status-na-poslu">Na poslu</span>
-            </div>
-            <div class="admin-radnik-fields">
-              <div class="admin-radnik-field"><span class="lbl">Radni sati (mesec)</span><span class="val">84h</span></div>
-              <div class="admin-radnik-field"><span class="lbl">Tim</span><span class="val">Front</span></div>
-            </div>
-          </div>
-          <div class="admin-radnik-card">
-            <div class="admin-radnik-header">
-              <div class="admin-radnik-ime">Ana Milić</div>
-              <span class="status-badge status-nije">Nije na poslu</span>
-            </div>
-            <div class="admin-radnik-fields">
-              <div class="admin-radnik-field"><span class="lbl">Radni sati (mesec)</span><span class="val">76h</span></div>
-              <div class="admin-radnik-field"><span class="lbl">Tim</span><span class="val">Front</span></div>
-            </div>
-          </div>
-          <div class="admin-radnik-card">
-            <div class="admin-radnik-header">
-              <div class="admin-radnik-ime">Stefan Nikolić</div>
-              <span class="status-badge status-na-poslu">Na poslu</span>
-            </div>
-            <div class="admin-radnik-fields">
-              <div class="admin-radnik-field"><span class="lbl">Radni sati (mesec)</span><span class="val">91h</span></div>
-              <div class="admin-radnik-field"><span class="lbl">Tim</span><span class="val">Back</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <nav class="bottom-nav">
-        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
-        <button class="nav-btn active" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
-        <button class="nav-btn" onclick="goTo('page-analitika', this)"><span class="icon">📊</span>Analitika</button>
-        <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
-      </nav>
+    <!-- ── 5.2 Zaposleni ── -->
+<div class="page" id="page-zaposleni">
+  <div class="topbar">
+    <span class="logo">ScanFlow</span>
+    <span class="role-badge role-badge--admin">Admin</span>
+  </div>
+
+  <div class="content">
+    <div class="section-label">Pretraga zaposlenih</div>
+
+    <div class="input-group">
+      <input
+        type="text"
+        id="pretraga-zaposlenih"
+        placeholder="Pretraži po imenu, prezimenu, timu ili statusu..."
+        oninput="pretraziZaposlene()"
+      />
     </div>
 
-    <!  5.3 Analitika  >
-    <div class="page" id="page-analitika">
-      <div class="topbar">
-        <span class="logo">ScanFlow</span>
-        <span class="role-badge role-badgeadmin">Admin</span>
-      </div>
-      <div class="content">
-        <div class="todo-placeholder">
-          <div class="todo-icon">📈</div>
-          <h3>Analitika</h3>
-          <p>To Do – globalna statistika rada i analitika sistema</p>
+    <div class="section-label">Lista zaposlenih</div>
+
+    <div class="admin-grid" id="lista-zaposlenih">
+      <div
+        class="admin-radnik-card"
+        data-ime="jovan đorđević"
+        data-tim="front"
+        data-status="na poslu"
+        onclick="prikaziDetaljeZaposlenog('jovan')"
+      >
+        <div class="admin-radnik-header">
+          <div class="admin-radnik-ime">Jovan Đorđević</div>
+          <span class="status-badge status-na-poslu">Na poslu</span>
+        </div>
+        <div class="admin-radnik-fields">
+          <div class="admin-radnik-field">
+            <span class="lbl">Tim</span>
+            <span class="val">Front</span>
+          </div>
         </div>
       </div>
-      <nav class="bottom-nav">
-        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
-        <button class="nav-btn" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
-        <button class="nav-btn active" onclick="goTo('page-analitika', this)"><span class="icon">📊</span>Analitika</button>
-        <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
-      </nav>
+
+      <div
+        class="admin-radnik-card"
+        data-ime="ana milić"
+        data-tim="front"
+        data-status="nije na poslu"
+        onclick="prikaziDetaljeZaposlenog('ana')"
+      >
+        <div class="admin-radnik-header">
+          <div class="admin-radnik-ime">Ana Milić</div>
+          <span class="status-badge status-nije">Nije na poslu</span>
+        </div>
+        <div class="admin-radnik-fields">
+          <div class="admin-radnik-field">
+            <span class="lbl">Tim</span>
+            <span class="val">Front</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="admin-radnik-card"
+        data-ime="stefan nikolić"
+        data-tim="back"
+        data-status="na poslu"
+        onclick="prikaziDetaljeZaposlenog('stefan')"
+      >
+        <div class="admin-radnik-header">
+          <div class="admin-radnik-ime">Stefan Nikolić</div>
+          <span class="status-badge status-na-poslu">Na poslu</span>
+        </div>
+        <div class="admin-radnik-fields">
+          <div class="admin-radnik-field">
+            <span class="lbl">Tim</span>
+            <span class="val">Back</span>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div id="nema-rezultata" class="card" style="display:none;">
+      <div class="announcement-empty">Nema zaposlenih koji odgovaraju pretrazi.</div>
+    </div>
+
+    <div id="detalji-zaposlenog" style="display:none;">
+      <div class="section-label">Detaljni pregled zaposlenog</div>
+
+      <div class="admin-radnik-card">
+        <div class="admin-radnik-header">
+          <div class="admin-radnik-ime" id="detalji-ime"></div>
+          <span id="detalji-status" class="status-badge"></span>
+        </div>
+
+        <div class="admin-radnik-fields">
+          <div class="admin-radnik-field">
+            <span class="lbl">Korisničko ime</span>
+            <span class="val" id="detalji-korisnicko-ime"></span>
+          </div>
+          <div class="admin-radnik-field">
+            <span class="lbl">Uloga</span>
+            <span class="val" id="detalji-uloga"></span>
+          </div>
+          <div class="admin-radnik-field">
+            <span class="lbl">Tim</span>
+            <span class="val" id="detalji-tim"></span>
+          </div>
+          <div class="admin-radnik-field">
+            <span class="lbl">Radni sati ovaj mesec</span>
+            <span class="val" id="detalji-sati"></span>
+          </div>
+          <div class="admin-radnik-field">
+            <span class="lbl">Check in</span>
+            <span class="val" id="detalji-checkin"></span>
+          </div>
+          <div class="admin-radnik-field">
+            <span class="lbl">Broj zadataka</span>
+            <span class="val" id="detalji-zadaci"></span>
+          </div>
+          <div class="admin-radnik-field">
+            <span class="lbl">Poslednja aktivnost</span>
+            <span class="val" id="detalji-aktivnost"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="goTo('page-home', this)">
+      <span class="icon">🏠</span>Home
+    </button>
+    <button class="nav-btn active" onclick="goTo('page-zaposleni', this)">
+      <span class="icon">👥</span>Zaposleni
+    </button>
+    <button class="nav-btn" onclick="goTo('page-analitika', this)">
+      <span class="icon">📊</span>Analitika
+    </button>
+    <button class="nav-btn" onclick="logout()">
+      <span class="icon">🚪</span>Odjava
+    </button>
+  </nav>
+</div>
+
+
+
+    <!  5.3 Analitika  >
+    <!-- ── 5.3 Analitika ── -->
+<div class="page" id="page-analitika">
+  <div class="topbar">
+    <span class="logo">ScanFlow</span>
+    <span class="role-badge role-badge--admin">Admin</span>
+  </div>
+
+  <div class="content">
+    <div class="section-label">Kriterijumi pregleda</div>
+
+    <div class="card">
+      <div class="input-group">
+        <label for="analitika-period">Vremenski period</label>
+        <select id="analitika-period" class="modal-select">
+          <option value="danas">Danas</option>
+          <option value="nedelja">Ova nedelja</option>
+          <option value="mesec" selected>Ovaj mesec</option>
+          <option value="godina">Ova godina</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="analitika-tim">Tim</label>
+        <select id="analitika-tim" class="modal-select">
+          <option value="svi" selected>Svi timovi</option>
+          <option value="front">Front</option>
+          <option value="back">Back</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="analitika-status">Status zaposlenih</label>
+        <select id="analitika-status" class="modal-select">
+          <option value="svi" selected>Svi zaposleni</option>
+          <option value="na-poslu">Na poslu</option>
+          <option value="nije-na-poslu">Nisu na poslu</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary mt-16" onclick="generisiAnalitiku()">
+        Prikaži analitiku
+      </button>
+    </div>
+
+    <div id="analitika-rezultati" style="display:none;">
+      <div class="section-label">Globalna statistika rada</div>
+
+      <div class="admin-grid">
+        <div class="admin-radnik-card">
+          <div class="admin-radnik-header">
+            <div class="admin-radnik-ime">Ukupno radnih sati</div>
+          </div>
+          <div class="admin-radnik-fields">
+            <div class="admin-radnik-field">
+              <span class="lbl">Izabrani period</span>
+              <span class="val" id="stat-period"></span>
+            </div>
+            <div class="admin-radnik-field">
+              <span class="lbl">Vrednost</span>
+              <span class="val" id="stat-sati"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-radnik-card">
+          <div class="admin-radnik-header">
+            <div class="admin-radnik-ime">Prijave i odjave</div>
+          </div>
+          <div class="admin-radnik-fields">
+            <div class="admin-radnik-field">
+              <span class="lbl">Broj prijava</span>
+              <span class="val" id="stat-prijave"></span>
+            </div>
+            <div class="admin-radnik-field">
+              <span class="lbl">Broj odjava</span>
+              <span class="val" id="stat-odjave"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-radnik-card">
+          <div class="admin-radnik-header">
+            <div class="admin-radnik-ime">Zadaci</div>
+          </div>
+          <div class="admin-radnik-fields">
+            <div class="admin-radnik-field">
+              <span class="lbl">Završeni</span>
+              <span class="val" id="stat-zavrseni"></span>
+            </div>
+            <div class="admin-radnik-field">
+              <span class="lbl">U toku</span>
+              <span class="val" id="stat-u-toku"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="analitika-nema-podataka" class="card" style="display:none;">
+      <div class="announcement-empty">
+        Za izabrane kriterijume nema dostupnih podataka.
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="goTo('page-home', this)">
+      <span class="icon">🏠</span>Home
+    </button>
+    <button class="nav-btn" onclick="goTo('page-zaposleni', this)">
+      <span class="icon">👥</span>Zaposleni
+    </button>
+    <button class="nav-btn active" onclick="goTo('page-analitika', this)">
+      <span class="icon">📊</span>Analitika
+    </button>
+    <button class="nav-btn" onclick="logout()">
+      <span class="icon">🚪</span>Odjava
+    </button>
+  </nav>
+</div>
 
   </div><! /#app >
 </div><! /.desktop-shell >

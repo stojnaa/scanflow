@@ -87,7 +87,7 @@
           <div class="molba-icon">🗓️</div>
           <div class="section-label section-labelcentered">Moje molbe</div>
           <div class="molba-desc">Pošalji zahtev svom menadžeru i sačekaj odobrenje.</div>
-          <button class="btn btn-primary btn-molba" onclick="openMolbaChoice()">📨 Nova molba</button>
+          <button class="btn btn-primary btn-molba" onclick="openMolbaForm()">📨 Novi zahtev za slobodan dan</button>
         </div>
       </div>
       <nav class="bottom-nav">
@@ -109,10 +109,10 @@
         <div class="card">
           <div class="profile-field"><span class="lbl">Ime</span><span class="val">Jovan</span></div>
           <div class="profile-field"><span class="lbl">Prezime</span><span class="val">Đorđević</span></div>
-          <div class="profile-field"><span class="lbl">Korisničko ime</span><span class="val">jdjordjevic</span></div>
+          <div class="profile-field"><span class="lbl">Korisničko ime</span><span class="val" id="profil-korisnicko">jdjordjevic</span></div>
           <div class="profile-field"><span class="lbl">Uloga</span><span class="val">Radnik</span></div>
         </div>
-        <button class="btn btn-ghost">✏️ Izmeni podatke</button>
+        <button class="btn btn-ghost" onclick="openIzmenaProfila()">✏️ Izmeni podatke </button>
         <button class="btn btn-secondary mt-8" onclick="logout()">🚪 Odjavi se</button>
       </div>
       <nav class="bottom-nav">
@@ -126,43 +126,68 @@
   </div><! /#app >
 </div><! /.desktop-shell >
 
-<!  Modal: izbor tipa molbe  >
-<div class="modal-overlay" id="modal-molba-choice" onclick="cancelMolba()">
+
+
+<!  Modal: forma molbe  >
+<!-- ── Modal: zahtev za slobodan dan ── -->
+<div class="modal-overlay" id="modal-molba-form" onclick="cancelMolba()">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title">Nova molba</div>
-    <div class="modal-desc">Odaberi tip zahteva</div>
-    <div class="modal-choice-btns">
-      <button class="modal-choice-btn" onclick="openMolbaForm('slobodan')">
-        <span class="modal-choice-icon">🗓️</span>
-        <span class="modal-choice-label">Slobodan dan</span>
+    <div class="modal-title">Zahtev za slobodan dan</div>
+
+    <div class="input-group">
+      <label>Datum slobodnog dana</label>
+      <input type="date" id="molba-date" />
+    </div>
+
+    <div class="input-group">
+      <label>Obrazloženje</label>
+      <textarea
+        id="molba-body"
+        class="modal-textarea"
+        placeholder="Unesi obrazloženje zahteva..."
+      ></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="submitMolba()">
+        📨 Uputi zahtev
       </button>
-      <button class="modal-choice-btn" onclick="openMolbaForm('ostalo')">
-        <span class="modal-choice-icon">📝</span>
-        <span class="modal-choice-label">Ostalo</span>
+      <button class="btn btn-secondary" onclick="cancelMolba()">
+        Odustani
       </button>
     </div>
-    <button class="btn btn-secondary mt-16" onclick="cancelMolba()">Odustani</button>
   </div>
 </div>
 
-<!  Modal: forma molbe  >
-<div class="modal-overlay" id="modal-molba-form" onclick="cancelMolba()">
+
+<!-- ── Modal: izmena profila ── -->
+<div class="modal-overlay" id="modal-izmena-profila" onclick="closeModal('modal-izmena-profila')">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title">Nova molba</div>
-    <div id="molba-title-wrap" class="input-group">
-      <label>Naslov molbe</label>
-      <input type="text" id="molba-title" placeholder="Naslov molbe" />
-    </div>
+    <div class="modal-title">Izmeni podatke</div>
+    <div class="modal-desc">Možeš promeniti korisničko ime i lozinku.</div>
+
     <div class="input-group">
-      <label>Telo molbe</label>
-      <textarea id="molba-body" class="modal-textarea" placeholder="Zahtev"></textarea>
+      <label>Korisničko ime</label>
+      <input type="text" id="profil-korisnicko-input" />
     </div>
+
+    <div class="input-group">
+      <label>Nova lozinka</label>
+      <input type="password" id="profil-lozinka-input" placeholder="Ostavi prazno ako ne menjaš lozinku" />
+    </div>
+
+    <div class="input-group">
+      <label>Potvrda nove lozinke</label>
+      <input type="password" id="profil-lozinka-potvrda-input" placeholder="Ponovi novu lozinku" />
+    </div>
+
     <div class="modal-actions">
-      <button class="btn btn-primary" onclick="submitMolba()">📨 Uputi zahtev</button>
-      <button class="btn btn-secondary" onclick="cancelMolba()">Odustani</button>
+      <button class="btn btn-primary" onclick="sacuvajIzmenuProfila()">Sačuvaj izmene</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-izmena-profila')">Odustani</button>
     </div>
   </div>
 </div>
+
 
 <script src="app.js"></script>
 <script src="radnik.js"></script>

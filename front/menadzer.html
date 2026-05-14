@@ -152,29 +152,70 @@
     </div>
 
     <!  Timovi  >
-    <div class="page" id="page-timovi">
-      <div class="topbar">
-        <button class="btn-back" onclick="goTo('page-zaposleni', dummyBtn())">‹ Nazad</button>
-        <span class="logo">Timovi</span>
+    <!-- ── Timovi ── -->
+<div class="page" id="page-timovi">
+  <div class="topbar">
+    <button class="btn-back" onclick="goTo('page-zaposleni', dummyBtn())">‹ Nazad</button>
+    <span class="logo">Timovi</span>
+  </div>
+
+  <div class="content">
+    <div class="section-label">Timovi</div>
+
+    <div class="card">
+      <div class="tim-header">
+        <div class="tim-naziv">👥 Tim: Front</div>
+        <button class="btn btn-secondary btn-tim" onclick="openDodajRadnikaUTim('front')">
+          + Dodaj u tim
+        </button>
       </div>
-      <div class="content">
-        <div class="section-label">Timovi</div>
-        <div class="card">
-          <div class="tim-header">
-            <div class="tim-naziv">👥 Tim: Front</div>
-            <button class="btn btn-secondary btn-tim">+ Dodaj u tim</button>
-          </div>
-          <div class="tim-member"><span class="tim-member-name">Jovan Đorđević</span></div>
-          <div class="tim-member"><span class="tim-member-name">Ana Milić</span></div>
+
+      <div id="tim-front-clanovi">
+        <div class="tim-member">
+          <span class="tim-member-name">Jovan Đorđević</span>
+        </div>
+        <div class="tim-member">
+          <span class="tim-member-name">Ana Milić</span>
         </div>
       </div>
-      <nav class="bottom-nav">
-        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
-        <button class="nav-btn active" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
-        <button class="nav-btn" onclick="goTo('page-molbe', this)"><span class="icon">📩</span>Molbe</button>
-        <button class="nav-btn" onclick="goTo('page-profile', this)"><span class="icon">👤</span>Profil</button>
-      </nav>
     </div>
+
+    <div class="card">
+      <div class="tim-header">
+        <div class="tim-naziv">👥 Tim: Back</div>
+        <button class="btn btn-secondary btn-tim" onclick="openDodajRadnikaUTim('back')">
+          + Dodaj u tim
+        </button>
+      </div>
+
+      <div id="tim-back-clanovi">
+        <div class="tim-member">
+          <span class="tim-member-name">Stefan Nikolić</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="tim-poruka" class="card" style="display:none;">
+      <div class="announcement-empty" id="tim-poruka-tekst"></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="goTo('page-home', this)">
+      <span class="icon">🏠</span>Home
+    </button>
+    <button class="nav-btn active" onclick="goTo('page-zaposleni', this)">
+      <span class="icon">👥</span>Zaposleni
+    </button>
+    <button class="nav-btn" onclick="goTo('page-molbe', this)">
+      <span class="icon">📩</span>Molbe
+    </button>
+    <button class="nav-btn" onclick="goTo('page-profile', this)">
+      <span class="icon">👤</span>Profil
+    </button>
+  </nav>
+</div>
+
 
     <!  Radnici  >
     <div class="page" id="page-radnici">
@@ -333,28 +374,79 @@
   </div>
 </div>
 
-<!  Modal: novi zadatak  >
+<!-- ── Modal: novi zadatak ── -->
 <div class="modal-overlay" id="modal-novi-zadatak" onclick="closeModal('modal-novi-zadatak')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-title">Novi zadatak</div>
+
     <div class="input-group">
       <label>Naziv zadatka</label>
       <input type="text" id="zadatak-naziv" placeholder="npr. Pregled magacina" />
     </div>
+
     <div class="input-group">
       <label>Opis</label>
       <textarea id="zadatak-opis" class="modal-textarea" placeholder="Detalji zadatka..."></textarea>
     </div>
+
     <div class="input-group">
       <label>Dodeli radniku</label>
       <select id="zadatak-radnik" class="modal-select"></select>
     </div>
+
+    <div class="input-group">
+      <label>Prioritet</label>
+      <select id="zadatak-prioritet" class="modal-select">
+        <option value="nizak">Nizak</option>
+        <option value="srednji" selected>Srednji</option>
+        <option value="visok">Visok</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label>Rok izvršenja</label>
+      <input type="date" id="zadatak-rok" />
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="saveZadatak()">💾 Dodaj zadatak</button>
       <button class="btn btn-secondary" onclick="closeModal('modal-novi-zadatak')">Odustani</button>
     </div>
   </div>
 </div>
+
+<!-- ── Modal: dodaj radnika u tim ── -->
+<div class="modal-overlay" id="modal-dodaj-u-tim" onclick="closeModal('modal-dodaj-u-tim')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Dodaj radnika u tim</div>
+
+    <div class="modal-desc" id="dodaj-u-tim-opis">
+      Izaberi radnika kog želiš da rasporediš.
+    </div>
+
+    <div class="input-group">
+      <label for="radnik-select">Radnik</label>
+      <select id="radnik-select" class="modal-select">
+        <option value="jovan">Jovan Đorđević</option>
+        <option value="ana">Ana Milić</option>
+        <option value="stefan">Stefan Nikolić</option>
+        <option value="milica">Milica Savić</option>
+        <option value="nemanja">Nemanja Jović</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="dodajRadnikaUTim()">
+        Potvrdi dodelu timu
+      </button>
+
+      <button class="btn btn-secondary" onclick="closeModal('modal-dodaj-u-tim')">
+        Odustani
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <script src="app.js"></script>
 <script src="menadzer.js"></script>
