@@ -7,110 +7,113 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div id="app">
+<div class="desktop-shell">
 
-  <!-- ── 5.1 Home ── -->
-  <div class="page active" id="page-home">
-    <div class="topbar">
-      <span class="logo">ScanFlow</span>
-      <span class="role-badge role-badge--admin">Admin</span>
-    </div>
-    <div class="content">
-      <div class="section-label">📢 Oglasna tabla</div>
-      <div class="card">
-        <div class="announcement-empty">📭 Nema novih obaveštenja</div>
+  <!  Sidebar  >
+  <nav class="sidebar">
+    <div class="sidebar-logo">ScanFlow</div>
+    <div class="sidebar-role" style="color:var(yellow)">Admin</div>
+    <button class="nav-btn active" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+    <button class="nav-btn" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
+    <button class="nav-btn" onclick="goTo('page-analitika', this)"><span class="icon">📊</span>Analitika</button>
+    <div class="sidebar-spacer"></div>
+    <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
+  </nav>
+
+  <div id="app">
+
+    <!  5.1 Home  >
+    <div class="page active" id="page-home">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge role-badgeadmin">Admin</span>
       </div>
-    </div>
-    <nav class="bottom-nav">
-      <button class="nav-btn active" onclick="goTo('page-home', this)">
-        <span class="icon">🏠</span>Home
-      </button>
-      <button class="nav-btn" onclick="goTo('page-zaposleni', this)">
-        <span class="icon">👥</span>Zaposleni
-      </button>
-      <button class="nav-btn" onclick="goTo('page-analitika', this)">
-        <span class="icon">📊</span>Analitika
-      </button>
-      <button class="nav-btn" onclick="logout()">
-        <span class="icon">🚪</span>Odjava
-      </button>
-    </nav>
-  </div>
-
-  <!-- ── 5.2 Zaposleni ── -->
-  <div class="page" id="page-zaposleni">
-    <div class="topbar">
-      <span class="logo">ScanFlow</span>
-      <span class="role-badge role-badge--admin">Admin</span>
-    </div>
-    <div class="content">
-      <div class="todo-placeholder">
-        <div class="todo-icon">🏗️</div>
-        <h3>Zaposleni</h3>
-        <p>To Do – detaljan pregled svih zaposlenih u kompaniji</p>
+      <div class="content">
+        <div class="section-label">📢 Oglasna tabla</div>
+        <div class="card"><div class="announcement-empty">📭 Nema novih obaveštenja</div></div>
       </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
+        <button class="nav-btn" onclick="goTo('page-analitika', this)"><span class="icon">📊</span>Analitika</button>
+        <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
+      </nav>
     </div>
-    <nav class="bottom-nav">
-      <button class="nav-btn" onclick="goTo('page-home', this)">
-        <span class="icon">🏠</span>Home
-      </button>
-      <button class="nav-btn active" onclick="goTo('page-zaposleni', this)">
-        <span class="icon">👥</span>Zaposleni
-      </button>
-      <button class="nav-btn" onclick="goTo('page-analitika', this)">
-        <span class="icon">📊</span>Analitika
-      </button>
-      <button class="nav-btn" onclick="logout()">
-        <span class="icon">🚪</span>Odjava
-      </button>
-    </nav>
-  </div>
 
-  <!-- ── 5.3 Analitika ── -->
-  <div class="page" id="page-analitika">
-    <div class="topbar">
-      <span class="logo">ScanFlow</span>
-      <span class="role-badge role-badge--admin">Admin</span>
-    </div>
-    <div class="content">
-      <div class="todo-placeholder">
-        <div class="todo-icon">📈</div>
-        <h3>Analitika</h3>
-        <p>To Do – globalna statistika rada i analitika sistema</p>
+    <!  5.2 Zaposleni  >
+    <div class="page" id="page-zaposleni">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge role-badgeadmin">Admin</span>
       </div>
+      <div class="content">
+        <div class="section-label">Svi zaposleni</div>
+        <div class="admin-grid">
+          <div class="admin-radnik-card">
+            <div class="admin-radnik-header">
+              <div class="admin-radnik-ime">Jovan Đorđević</div>
+              <span class="status-badge status-na-poslu">Na poslu</span>
+            </div>
+            <div class="admin-radnik-fields">
+              <div class="admin-radnik-field"><span class="lbl">Radni sati (mesec)</span><span class="val">84h</span></div>
+              <div class="admin-radnik-field"><span class="lbl">Tim</span><span class="val">Front</span></div>
+            </div>
+          </div>
+          <div class="admin-radnik-card">
+            <div class="admin-radnik-header">
+              <div class="admin-radnik-ime">Ana Milić</div>
+              <span class="status-badge status-nije">Nije na poslu</span>
+            </div>
+            <div class="admin-radnik-fields">
+              <div class="admin-radnik-field"><span class="lbl">Radni sati (mesec)</span><span class="val">76h</span></div>
+              <div class="admin-radnik-field"><span class="lbl">Tim</span><span class="val">Front</span></div>
+            </div>
+          </div>
+          <div class="admin-radnik-card">
+            <div class="admin-radnik-header">
+              <div class="admin-radnik-ime">Stefan Nikolić</div>
+              <span class="status-badge status-na-poslu">Na poslu</span>
+            </div>
+            <div class="admin-radnik-fields">
+              <div class="admin-radnik-field"><span class="lbl">Radni sati (mesec)</span><span class="val">91h</span></div>
+              <div class="admin-radnik-field"><span class="lbl">Tim</span><span class="val">Back</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn active" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
+        <button class="nav-btn" onclick="goTo('page-analitika', this)"><span class="icon">📊</span>Analitika</button>
+        <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
+      </nav>
     </div>
-    <nav class="bottom-nav">
-      <button class="nav-btn" onclick="goTo('page-home', this)">
-        <span class="icon">🏠</span>Home
-      </button>
-      <button class="nav-btn" onclick="goTo('page-zaposleni', this)">
-        <span class="icon">👥</span>Zaposleni
-      </button>
-      <button class="nav-btn active" onclick="goTo('page-analitika', this)">
-        <span class="icon">📊</span>Analitika
-      </button>
-      <button class="nav-btn" onclick="logout()">
-        <span class="icon">🚪</span>Odjava
-      </button>
-    </nav>
-  </div>
 
-</div>
+    <!  5.3 Analitika  >
+    <div class="page" id="page-analitika">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge role-badgeadmin">Admin</span>
+      </div>
+      <div class="content">
+        <div class="todo-placeholder">
+          <div class="todo-icon">📈</div>
+          <h3>Analitika</h3>
+          <p>To Do – globalna statistika rada i analitika sistema</p>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn" onclick="goTo('page-zaposleni', this)"><span class="icon">👥</span>Zaposleni</button>
+        <button class="nav-btn active" onclick="goTo('page-analitika', this)"><span class="icon">📊</span>Analitika</button>
+        <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
+      </nav>
+    </div>
 
-<script>
-  let currentPage = 'page-home';
+  </div><! /#app >
+</div><! /.desktop-shell >
 
-  function goTo(pageId, btn) {
-    document.getElementById(currentPage).classList.remove('active');
-    currentPage = pageId;
-    document.getElementById(pageId).classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  function logout() {
-    window.location.href = 'index.html';
-  }
-</script>
+<script src="app.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>

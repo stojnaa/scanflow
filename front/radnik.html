@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScanFlow – Radnik</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="desktop-shell">
+
+  <!  Sidebar (vidljiv samo na desktopu)  >
+  <nav class="sidebar">
+    <div class="sidebar-logo">ScanFlow</div>
+    <div class="sidebar-role">Radnik</div>
+    <button class="nav-btn active" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+    <button class="nav-btn" onclick="goTo('page-tasks', this)"><span class="icon">📋</span>Zadaci</button>
+    <button class="nav-btn" onclick="goTo('page-molbe', this)"><span class="icon">📩</span>Molbe</button>
+    <button class="nav-btn" onclick="goTo('page-profile', this)"><span class="icon">👤</span>Profil</button>
+    <div class="sidebar-spacer"></div>
+    <button class="nav-btn" onclick="logout()"><span class="icon">🚪</span>Odjava</button>
+  </nav>
+
+  <div id="app">
+
+    <!  3.1 Home  >
+    <div class="page active" id="page-home">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge">Radnik</span>
+      </div>
+      <div class="content">
+        <button id="checkin-btn" class="checkin-btn in" onclick="toggleCheckin()">✅ CHECK IN</button>
+        <div id="checkin-status" class="checkin-status">Nisi prijavljen/a na posao</div>
+        <div class="section-label">📢 Oglasna tabla</div>
+        <div class="card">
+          <div class="announcement-empty">📭 Nema novih obaveštenja</div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn" onclick="goTo('page-tasks', this)"><span class="icon">📋</span>Zadaci</button>
+        <button class="nav-btn" onclick="goTo('page-molbe', this)"><span class="icon">📩</span>Molbe</button>
+        <button class="nav-btn" onclick="goTo('page-profile', this)"><span class="icon">👤</span>Profil</button>
+      </nav>
+    </div>
+
+    <!  3.2 Zadaci  >
+    <div class="page" id="page-tasks">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge">Radnik</span>
+      </div>
+      <div class="content">
+        <div class="section-label">📋 Moji zadaci</div>
+        <div class="zadaci-grid">
+          <div class="task-item">
+            <div class="task-body"><div class="task-title">Pregled magacina – sektor A</div><div class="task-meta">Dodeljeno: 10. apr 2026</div></div>
+            <select class="task-select"><option>To Do</option><option>In Progress</option><option>Done</option></select>
+          </div>
+          <div class="task-item">
+            <div class="task-body"><div class="task-title">Izveštaj o zalihama</div><div class="task-meta">Dodeljeno: 11. apr 2026</div></div>
+            <select class="task-select"><option>To Do</option><option selected>In Progress</option><option>Done</option></select>
+          </div>
+          <div class="task-item">
+            <div class="task-body"><div class="task-title">Dostava paketa – zona 3</div><div class="task-meta">Dodeljeno: 9. apr 2026</div></div>
+            <select class="task-select"><option>To Do</option><option>In Progress</option><option selected>Done</option></select>
+          </div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn active" onclick="goTo('page-tasks', this)"><span class="icon">📋</span>Zadaci</button>
+        <button class="nav-btn" onclick="goTo('page-molbe', this)"><span class="icon">📩</span>Molbe</button>
+        <button class="nav-btn" onclick="goTo('page-profile', this)"><span class="icon">👤</span>Profil</button>
+      </nav>
+    </div>
+
+    <!  3.3 Molbe  >
+    <div class="page" id="page-molbe">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge">Radnik</span>
+      </div>
+      <div class="content">
+        <div class="molba-wrap">
+          <div class="molba-icon">🗓️</div>
+          <div class="section-label section-labelcentered">Moje molbe</div>
+          <div class="molba-desc">Pošalji zahtev svom menadžeru i sačekaj odobrenje.</div>
+          <button class="btn btn-primary btn-molba" onclick="openMolbaChoice()">📨 Nova molba</button>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn" onclick="goTo('page-tasks', this)"><span class="icon">📋</span>Zadaci</button>
+        <button class="nav-btn active" onclick="goTo('page-molbe', this)"><span class="icon">📩</span>Molbe</button>
+        <button class="nav-btn" onclick="goTo('page-profile', this)"><span class="icon">👤</span>Profil</button>
+      </nav>
+    </div>
+
+    <!  3.4 Profil  >
+    <div class="page" id="page-profile">
+      <div class="topbar">
+        <span class="logo">ScanFlow</span>
+        <span class="role-badge">Radnik</span>
+      </div>
+      <div class="content">
+        <div class="profile-avatar">JĐ</div>
+        <div class="card">
+          <div class="profile-field"><span class="lbl">Ime</span><span class="val">Jovan</span></div>
+          <div class="profile-field"><span class="lbl">Prezime</span><span class="val">Đorđević</span></div>
+          <div class="profile-field"><span class="lbl">Korisničko ime</span><span class="val">jdjordjevic</span></div>
+          <div class="profile-field"><span class="lbl">Uloga</span><span class="val">Radnik</span></div>
+        </div>
+        <button class="btn btn-ghost">✏️ Izmeni podatke</button>
+        <button class="btn btn-secondary mt-8" onclick="logout()">🚪 Odjavi se</button>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-btn" onclick="goTo('page-home', this)"><span class="icon">🏠</span>Home</button>
+        <button class="nav-btn" onclick="goTo('page-tasks', this)"><span class="icon">📋</span>Zadaci</button>
+        <button class="nav-btn" onclick="goTo('page-molbe', this)"><span class="icon">📩</span>Molbe</button>
+        <button class="nav-btn active" onclick="goTo('page-profile', this)"><span class="icon">👤</span>Profil</button>
+      </nav>
+    </div>
+
+  </div><! /#app >
+</div><! /.desktop-shell >
+
+<!  Modal: izbor tipa molbe  >
+<div class="modal-overlay" id="modal-molba-choice" onclick="cancelMolba()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Nova molba</div>
+    <div class="modal-desc">Odaberi tip zahteva</div>
+    <div class="modal-choice-btns">
+      <button class="modal-choice-btn" onclick="openMolbaForm('slobodan')">
+        <span class="modal-choice-icon">🗓️</span>
+        <span class="modal-choice-label">Slobodan dan</span>
+      </button>
+      <button class="modal-choice-btn" onclick="openMolbaForm('ostalo')">
+        <span class="modal-choice-icon">📝</span>
+        <span class="modal-choice-label">Ostalo</span>
+      </button>
+    </div>
+    <button class="btn btn-secondary mt-16" onclick="cancelMolba()">Odustani</button>
+  </div>
+</div>
+
+<!  Modal: forma molbe  >
+<div class="modal-overlay" id="modal-molba-form" onclick="cancelMolba()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Nova molba</div>
+    <div id="molba-title-wrap" class="input-group">
+      <label>Naslov molbe</label>
+      <input type="text" id="molba-title" placeholder="Naslov molbe" />
+    </div>
+    <div class="input-group">
+      <label>Telo molbe</label>
+      <textarea id="molba-body" class="modal-textarea" placeholder="Zahtev"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="submitMolba()">📨 Uputi zahtev</button>
+      <button class="btn btn-secondary" onclick="cancelMolba()">Odustani</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="radnik.js"></script>
+</body>
+</html>
