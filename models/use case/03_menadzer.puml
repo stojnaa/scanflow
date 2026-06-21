@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+
+actor "Menadžer" as Menadzer
+
+rectangle "ScanFlow sistem - funkcionalnosti menadžera" {
+    usecase "Pregled zahteva\nza slobodne dane" as UC1
+    usecase "Odobravanje zahteva\nza slobodan dan" as UC2
+    usecase "Odbijanje zahteva\nza slobodan dan" as UC3
+
+    usecase "Popunjavanje smena" as UC4
+    usecase "Izbor radnika\nza smenu" as UC5
+    usecase "Čuvanje rasporeda\nsmene" as UC6
+
+    usecase "Dodavanje novih\nzadataka radnicima" as UC7
+    usecase "Izbor radnika\nza zadatak" as UC8
+    usecase "Unos opisa\nzadatka" as UC9
+
+    usecase "Dodavanje radnika\nu tim" as UC10
+    usecase "Pregled radnih sati\nradnika" as UC11
+    usecase "Prikaz radnika\ntrenutno na poslu" as UC12
+
+    usecase "Promena statusa\nzaposlenog" as UC13
+    usecase "Eksportovanje analitike\nu CSV format" as UC14
+}
+
+Menadzer --> UC1
+Menadzer --> UC4
+Menadzer --> UC7
+Menadzer --> UC10
+Menadzer --> UC11
+Menadzer --> UC12
+Menadzer --> UC13
+Menadzer --> UC14
+
+UC2 .> UC1 : <<extend>>
+UC3 .> UC1 : <<extend>>
+
+UC4 .> UC5 : <<include>>
+UC4 .> UC6 : <<include>>
+
+UC7 .> UC8 : <<include>>
+UC7 .> UC9 : <<include>>
+@enduml

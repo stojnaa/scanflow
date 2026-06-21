@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+
+actor "Admin" as Admin
+actor "QR terminal" as QR
+actor "Korisnik" as Korisnik
+
+rectangle "ScanFlow sistem - admin i QR terminal" {
+    usecase "Detaljan pregled\npodataka zaposlenih" as UC1
+    usecase "Izbor zaposlenog" as UC2
+    usecase "Pregled radnih sati\nzaposlenog" as UC3
+    usecase "Pregled zadataka\nzaposlenog" as UC4
+
+    usecase "Pregled globalne\nstatistike rada" as UC5
+    usecase "Pregled analitike\nsistema" as UC6
+
+    usecase "Generisanje dinamičkog\nQR koda" as UC7
+    usecase "Prikaz QR koda" as UC8
+    usecase "Periodično osvežavanje\nQR koda" as UC9
+    usecase "Obrada prijave/odjave\npreko QR koda" as UC10
+    usecase "Validacija važenja\nQR koda" as UC11
+    usecase "Evidentiranje prijave\nili odjave" as UC12
+}
+
+Admin --> UC1
+Admin --> UC5
+Admin --> UC6
+
+UC1 .> UC2 : <<include>>
+UC1 .> UC3 : <<include>>
+UC1 .> UC4 : <<include>>
+
+QR --> UC7
+QR --> UC8
+QR --> UC9
+
+UC7 .> UC8 : <<include>>
+UC9 .> UC7 : <<include>>
+
+Korisnik --> UC10
+
+UC10 .> UC11 : <<include>>
+UC10 .> UC12 : <<include>>
+@enduml

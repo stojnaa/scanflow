@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+
+actor "Korisnik" as Korisnik
+actor "Radnik" as Radnik
+actor "Menadžer" as Menadzer
+actor "Admin" as Admin
+actor "QR terminal" as QR
+
+Radnik --|> Korisnik
+Menadzer --|> Korisnik
+Admin --|> Korisnik
+
+rectangle "ScanFlow sistem" {
+    usecase "Registracija" as UC1
+    usecase "Logovanje" as UC2
+    usecase "Ažuriranje ličnih\npodataka" as UC3
+
+    usecase "Prijava na posao\npreko QR koda" as UC4
+    usecase "Odjava sa posla\npreko QR koda" as UC5
+    usecase "Skeniranje QR koda" as UC6
+    usecase "Bezbedna obrada\nQR zahteva" as UC7
+}
+
+Korisnik --> UC1
+Korisnik --> UC2
+Korisnik --> UC3
+
+Radnik --> UC4
+Radnik --> UC5
+
+Menadzer --> UC4
+Menadzer --> UC5
+
+UC4 .> UC6 : <<include>>
+UC5 .> UC6 : <<include>>
+UC6 .> UC7 : <<include>>
+
+QR --> UC7
+@enduml
