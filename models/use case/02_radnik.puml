@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+
+actor "Radnik" as Radnik
+
+rectangle "ScanFlow sistem - funkcionalnosti radnika" {
+    usecase "Pregled oglasne table" as UC1
+    usecase "Pregled dodeljenih\nzadataka" as UC2
+    usecase "Pregled detalja\nzadatka" as UC3
+    usecase "Promena statusa\nzadatka" as UC4
+
+    usecase "Upućivanje zahteva\nza slobodan dan" as UC5
+    usecase "Unos datuma\nslobodnog dana" as UC6
+    usecase "Slanje zahteva\nmenadžeru" as UC7
+    usecase "Pregled statusa\nzahteva" as UC8
+}
+
+Radnik --> UC1
+Radnik --> UC2
+Radnik --> UC5
+Radnik --> UC8
+
+UC3 .> UC2 : <<extend>>
+UC4 .> UC3 : <<extend>>
+
+UC5 .> UC6 : <<include>>
+UC5 .> UC7 : <<include>>
+
+@enduml
