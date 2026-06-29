@@ -4,6 +4,7 @@ from django.db import models
 
 
 class Zaposleni(models.Model):
+    zaposleni_id = models.AutoField(primary_key=True, db_column='zaposleni_id')
     class Uloga(models.TextChoices):
         RADNIK = 'RADNIK', 'Radnik'
         MENADZER = 'MENADZER', 'Menadzer'
@@ -90,6 +91,7 @@ class Zadatak(models.Model):
 
 
 class Smena(models.Model):
+    smena_id = models.AutoField(primary_key=True, db_column='smena_id')
     broj_nedelje = models.IntegerField()
     datum_od = models.DateField()
     datum_do = models.DateField()
@@ -109,6 +111,7 @@ class Smena(models.Model):
 
 
 class SmenaZaposleni(models.Model):
+    pk = models.CompositePrimaryKey("smena", "zaposleni", "tip_smene")
     class TipSmene(models.TextChoices):
         PRVA = 'PRVA', 'Prva'
         DRUGA = 'DRUGA', 'Druga'
@@ -128,6 +131,7 @@ class SmenaZaposleni(models.Model):
 
 
 class Molba(models.Model):
+    molba_id = models.AutoField(primary_key=True, db_column='molba_id')
     class Status(models.TextChoices):
         NA_CEKANJU = 'NA_CEKANJU', 'Na cekanju'
         ODOBRENA = 'ODOBRENA', 'Odobrena'
@@ -225,6 +229,7 @@ class Evidencija(models.Model):
 
 
 class Obavestenje(models.Model):
+    obavestenje_id = models.AutoField(primary_key=True, db_column='obavestenje_id')
     naslov = models.CharField(max_length=100)
     tekst = models.TextField()
     datum_kreiranja = models.DateTimeField(auto_now_add=True)
