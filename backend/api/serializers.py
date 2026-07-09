@@ -1,11 +1,100 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import Zaposleni, Molba, Obavestenje, Smena, SmenaZaposleni
+from .models import Zaposleni, Tim, Molba, Obavestenje, Smena, SmenaZaposleni
 
 
 class ZaposleniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zaposleni
         fields = ['zaposleni_id', 'ime', 'prezime', 'mejl', 'uloga']
+
+
+class TimSerializer(serializers.ModelSerializer):
+    menadzer_detail = ZaposleniSerializer(source='menadzer', read_only=True)
+    clanovi_detail = ZaposleniSerializer(source='clanovi', many=True, read_only=True)
+
+    class Meta:
+        model = Tim
+        fields = ['id', 'naziv', 'menadzer', 'menadzer_detail', 'clanovi_detail']
+
+
+class ZaposleniDetailSerializer(serializers.ModelSerializer):
+    """Pun prikaz zaposlenog (bez sifra_hash) - koristi se za admin uvid, profil i odgovore na auth rute."""
+    timovi = TimSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Zaposleni
+        fields = [
+            'zaposleni_id', 'ime', 'prezime', 'datum_rodjenja', 'datum_zaposlenja',
+            'telefon', 'adresa', 'kor_ime', 'mejl', 'uloga', 'aktivan', 'timovi',
+        ]
+
+
+class RegistracijaSerializer(serializers.ModelSerializer):
+    sifra = serializers.CharField(write_only=True, min_length=8)
+
+    class Meta:
+        model = Zaposleni
+        fields = [
+            'ime', 'prezime', 'datum_rodjenja', 'datum_zaposlenja',
+            'telefon', 'adresa', 'kor_ime', 'mejl', 'sifra',
+        ]
+        # Iskljucujemo auto-generisani UniqueValidator (engleska poruka) - uniqueness
+        # proveravamo rucno u validate_kor_ime/validate_mejl radi konzistentnih poruka.
+        extra_kwargs = {
+            'kor_ime': {'validators': []},
+            'mejl': {'validators': []},
+        }
+
+    def validate_kor_ime(self, value):
+        if Zaposleni.objects.filter(kor_ime=value).exists():
+            raise serializers.ValidationError('Korisničko ime je već zauzeto.')
+        return value
+
+    def validate_mejl(self, value):
+        if Zaposleni.objects.filter(mejl=value).exists():
+            raise serializers.ValidationError('Nalog sa ovom email adresom već postoji.')
+        return value
+
+    def create(self, validated_data):
+        sifra = validated_data.pop('sifra')
+        zaposleni = Zaposleni(**validated_data, uloga=Zaposleni.Uloga.RADNIK)
+        zaposleni.sifra_hash = make_password(sifra)
+        zaposleni.save()
+        return zaposleni
+
+
+class LoginSerializer(serializers.Serializer):
+    kor_ime_ili_mejl = serializers.CharField()
+    sifra = serializers.CharField(write_only=True)
+
+
+class AzuriranjeProfilaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Zaposleni
+        fields = ['ime', 'prezime', 'telefon', 'adresa', 'mejl']
+        extra_kwargs = {
+            'mejl': {'validators': []},
+        }
+
+    def validate_mejl(self, value):
+        if Zaposleni.objects.filter(mejl=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError('Nalog sa ovom email adresom već postoji.')
+        return value
+
+
+class DodajClanaTimaSerializer(serializers.Serializer):
+    zaposleni_id = serializers.IntegerField()
+
+
+class PromenaStatusaSerializer(serializers.Serializer):
+    uloga = serializers.ChoiceField(choices=Zaposleni.Uloga.choices, required=False)
+    aktivan = serializers.BooleanField(required=False)
+
+    def validate(self, attrs):
+        if not attrs:
+            raise serializers.ValidationError('Potrebno je proslediti "uloga" i/ili "aktivan".')
+        return attrs
 
 
 class MolbaSerializer(serializers.ModelSerializer):

@@ -32,6 +32,12 @@ class Zaposleni(models.Model):
     def __str__(self):
         return f'{self.ime} {self.prezime}'
 
+    @property
+    def is_authenticated(self):
+        # Zaposleni ne nasledjuje AbstractUser; ovo omogucava DRF-u (IsAuthenticated i sl.)
+        # da tretira svaku instancu dobijenu kroz ZaposleniJWTAuthentication kao prijavljenog korisnika.
+        return True
+
 
 class Tim(models.Model):
     naziv = models.CharField(max_length=100)

@@ -1,15 +1,152 @@
+from django.contrib.auth.hashers import check_password
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Zaposleni, Molba, Obavestenje, Smena, SmenaZaposleni
+from .authentication import generate_token
+from .models import Zaposleni, Tim, Molba, Obavestenje, Smena, SmenaZaposleni
+from .permissions import JeAdmin, JeMenadzerIliAdmin
 from .serializers import (
+    AzuriranjeProfilaSerializer,
+    DodajClanaTimaSerializer,
+    LoginSerializer,
     MolbaSerializer,
     ObavestenjeSerializer,
+    PromenaStatusaSerializer,
+    RegistracijaSerializer,
     SmenaSerializer,
     SmenaZaposleniSerializer,
+    TimSerializer,
+    ZaposleniDetailSerializer,
 )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def registracija(request):
+    serializer = RegistracijaSerializer(data=request.data)
+    if serializer.is_valid():
+        zaposleni = serializer.save()
+        token = generate_token(zaposleni)
+        return Response(
+            {'token': token, 'zaposleni': ZaposleniDetailSerializer(zaposleni).data},
+            status=status.HTTP_201_CREATED,
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def prijava(request):
+    serializer = LoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    identifikator = serializer.validated_data['kor_ime_ili_mejl']
+    sifra = serializer.validated_data['sifra']
+
+    try:
+        zaposleni = Zaposleni.objects.get(Q(kor_ime=identifikator) | Q(mejl=identifikator))
+    except Zaposleni.DoesNotExist:
+        return Response({'error': 'Pogrešno korisničko ime/email ili lozinka.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not zaposleni.aktivan or not check_password(sifra, zaposleni.sifra_hash):
+        return Response({'error': 'Pogrešno korisničko ime/email ili lozinka.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    token = generate_token(zaposleni)
+    return Response({'token': token, 'zaposleni': ZaposleniDetailSerializer(zaposleni).data})
+
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def moj_profil(request):
+    zaposleni = request.user
+
+    if request.method == 'GET':
+        return Response(ZaposleniDetailSerializer(zaposleni).data)
+
+    serializer = AzuriranjeProfilaSerializer(zaposleni, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(ZaposleniDetailSerializer(zaposleni).data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def lista_timova(request):
+    timovi = Tim.objects.all().order_by('naziv')
+    return Response(TimSerializer(timovi, many=True).data)
+
+
+@api_view(['POST'])
+@permission_classes([JeMenadzerIliAdmin])
+def dodaj_radnika_u_tim(request, tim_id):
+    try:
+        tim = Tim.objects.get(pk=tim_id)
+    except Tim.DoesNotExist:
+        return Response({'error': 'Tim ne postoji.'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = DodajClanaTimaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    try:
+        zaposleni = Zaposleni.objects.get(zaposleni_id=serializer.validated_data['zaposleni_id'])
+    except Zaposleni.DoesNotExist:
+        return Response({'error': 'Zaposleni ne postoji.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if tim.clanovi.filter(pk=zaposleni.pk).exists():
+        return Response({'error': 'Zaposleni je već član ovog tima.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    tim.clanovi.add(zaposleni)
+    return Response(TimSerializer(tim).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PATCH'])
+@permission_classes([JeMenadzerIliAdmin])
+def promeni_status_zaposlenog(request, zaposleni_id):
+    try:
+        zaposleni = Zaposleni.objects.get(zaposleni_id=zaposleni_id)
+    except Zaposleni.DoesNotExist:
+        return Response({'error': 'Zaposleni ne postoji.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Menadzer ne sme da menja status administratora, niti da nekog unapredi u administratora.
+    nova_uloga = request.data.get('uloga')
+    if request.user.uloga != Zaposleni.Uloga.ADMIN and (
+        zaposleni.uloga == Zaposleni.Uloga.ADMIN or nova_uloga == Zaposleni.Uloga.ADMIN
+    ):
+        return Response(
+            {'error': 'Samo administrator može menjati status administratora ili dodeliti tu ulogu.'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    serializer = PromenaStatusaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    for polje, vrednost in serializer.validated_data.items():
+        setattr(zaposleni, polje, vrednost)
+    zaposleni.save()
+
+    return Response(ZaposleniDetailSerializer(zaposleni).data)
+
+
+@api_view(['GET'])
+@permission_classes([JeAdmin])
+def admin_lista_zaposlenih(request):
+    zaposleni = Zaposleni.objects.all().order_by('prezime', 'ime')
+    return Response(ZaposleniDetailSerializer(zaposleni, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([JeAdmin])
+def admin_detalji_zaposlenog(request, zaposleni_id):
+    try:
+        zaposleni = Zaposleni.objects.get(zaposleni_id=zaposleni_id)
+    except Zaposleni.DoesNotExist:
+        return Response({'error': 'Zaposleni ne postoji.'}, status=status.HTTP_404_NOT_FOUND)
+    return Response(ZaposleniDetailSerializer(zaposleni).data)
 
 
 @api_view(['GET'])
