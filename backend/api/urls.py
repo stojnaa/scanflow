@@ -36,4 +36,18 @@ urlpatterns = [
         views.ukloni_radnika_iz_smene,
         name='ukloni_radnika_iz_smene'
     ),
+
+    path('menadzer/terminali/', views.menadzer_terminali, name='menadzer_terminali'),
+    path('terminali/<int:terminal_id>/qr-kod/', views.qr_kod_za_terminal, name='qr_kod_za_terminal'),
+    path('evidencija/skeniraj/', views.skeniraj_qr, name='skeniraj_qr'),
+    path('evidencija/moja/<int:zaposleni_id>/', views.moja_evidencija, name='moja_evidencija'),
+    path('menadzer/prisutni/', views.prisutni_na_poslu, name='prisutni_na_poslu'),
+
+    path('menadzer/zadaci/', views.menadzer_zadaci, name='menadzer_zadaci'),
+    path('zadaci/moji/<int:zaposleni_id>/', views.moji_zadaci, name='moji_zadaci'),
+    path('zadaci/<int:zadatak_id>/status/', views.promeni_status_zadatka, name='promeni_status_zadatka'),
+
+    path('menadzer/statistika/radni-sati/', views.menadzer_statistika_radni_sati, name='menadzer_statistika_radni_sati'),
+    path('admin/statistika/', views.admin_statistika, name='admin_statistika'),
+    path('admin/statistika/export/', views.admin_statistika_export_csv, name='admin_statistika_export_csv'),
 ]

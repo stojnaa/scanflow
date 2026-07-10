@@ -1,6 +1,9 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import Zaposleni, Tim, Molba, Obavestenje, Smena, SmenaZaposleni
+from .models import (
+    Zaposleni, Tim, Molba, Obavestenje, Smena, SmenaZaposleni,
+    QrTerminal, Evidencija, Zadatak,
+)
 
 
 class ZaposleniSerializer(serializers.ModelSerializer):
@@ -155,3 +158,39 @@ class SmenaZaposleniSerializer(serializers.ModelSerializer):
             'smena_detail',
             'zaposleni_detail',
         ]
+
+
+class QrTerminalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QrTerminal
+        fields = ['id', 'naziv', 'lokacija', 'aktivan']
+
+
+class SkeniranjeSerializer(serializers.Serializer):
+    token = serializers.CharField()
+
+
+class EvidencijaSerializer(serializers.ModelSerializer):
+    zaposleni_detail = ZaposleniSerializer(source='zaposleni', read_only=True)
+
+    class Meta:
+        model = Evidencija
+        fields = ['id', 'zaposleni', 'zaposleni_detail', 'tip', 'vreme', 'qr_token']
+        read_only_fields = ['zaposleni', 'tip', 'vreme', 'qr_token']
+
+
+class ZadatakSerializer(serializers.ModelSerializer):
+    kreirao_detail = ZaposleniSerializer(source='kreirao', read_only=True)
+    dodeljeni_detail = ZaposleniSerializer(source='dodeljeni', many=True, read_only=True)
+
+    class Meta:
+        model = Zadatak
+        fields = [
+            'id', 'naslov', 'opis', 'datum_kreiranja', 'rok', 'status',
+            'kreirao', 'kreirao_detail', 'dodeljeni', 'dodeljeni_detail',
+        ]
+        read_only_fields = ['datum_kreiranja', 'status', 'kreirao']
+
+
+class PromenaStatusaZadatkaSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Zadatak.Status.choices)
