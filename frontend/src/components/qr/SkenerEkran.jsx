@@ -1,32 +1,70 @@
-import { useState } from 'react'
-import { Alert, Badge, Button, Card } from 'react-bootstrap'
+import { useRef, useState } from 'react'
+import { Alert, Badge, Button, Card, Spinner } from 'react-bootstrap'
 import { QrReader } from 'react-qr-reader'
+import { posaljiSkeniranje } from '../../api/qrApi'
+import { porukaGreske } from '../../api/greske'
 
-// Skener za check-in/check-out. Tip zapisa (check-in ili check-out) je za
-// sada određen lokalno naizmeničnim prebacivanjem — pravo slanje skeniranog
-// koda na POST /evidencija/skeniraj/ i odgovor servera dolaze u Week 4.
+// Skener za check-in/check-out. Tip zapisa (check-in ili check-out) odlučuje isključivo
+// server (naizmenično po zaposlenom) — frontend ga ne predviđa, samo prikazuje rezultat.
 function SkenerEkran() {
-  const [sledeciTip, setSledeciTip] = useState('CHECK_IN')
   const [status, setStatus] = useState(null)
+  const [uToku, setUToku] = useState(false)
   const [kameraDostupna, setKameraDostupna] = useState(true)
 
-  const obradiSkeniranje = (kod) => {
-    const tip = sledeciTip
-    setSledeciTip(tip === 'CHECK_IN' ? 'CHECK_OUT' : 'CHECK_IN')
-    setStatus({
-      vrsta: 'uspeh',
-      poruka: `${tip === 'CHECK_IN' ? 'Check-in' : 'Check-out'} uspešan (kod: ${kod}).`,
-    })
+  // Ref-ovi (ne state) da bi provere unutar onResult bile sinhrone i da ne izazivaju re-render.
+  const uTokuRef = useRef(false)
+  const poslednjiKodRef = useRef(null)
+
+  const posaljiKod = async (kod) => {
+    uTokuRef.current = true
+    poslednjiKodRef.current = kod
+    setUToku(true)
+
+    try {
+      const rezultat = await posaljiSkeniranje(kod)
+      const poruka =
+        rezultat.tip === 'CHECK_IN' ? 'Uspešno prijavljen(a) na posao.' : 'Uspešno odjavljen(a) sa posla.'
+      setStatus({ vrsta: 'uspeh', poruka })
+    } catch (error) {
+      const mrezniProblem = !error?.response
+
+      if (mrezniProblem) {
+        setStatus({
+          vrsta: 'mreza',
+          poruka: porukaGreske(error, 'Greška u mreži. Proverite konekciju i pokušajte ponovo.'),
+          kod,
+        })
+        // Ništa nije zabeleženo na serveru — dozvoli da se isti kod ponovo pošalje.
+        poslednjiKodRef.current = null
+      } else if (porukaGreske(error).toLowerCase().includes('istek')) {
+        setStatus({ vrsta: 'istekao', poruka: porukaGreske(error, 'QR kod je istekao, skenirajte ponovo.') })
+      } else {
+        setStatus({ vrsta: 'nevazeci', poruka: porukaGreske(error, 'Nevažeći QR kod.') })
+      }
+    } finally {
+      uTokuRef.current = false
+      setUToku(false)
+    }
   }
 
   const handleResult = (result, error) => {
     if (result) {
-      obradiSkeniranje(result.getText())
+      const kod = result.getText()
+      if (uTokuRef.current || kod === poslednjiKodRef.current) return
+      posaljiKod(kod)
     }
     if (error && error?.name && error.name !== 'NotFoundException') {
       setKameraDostupna(false)
       setStatus({ vrsta: 'greska', poruka: 'Kamera nije dostupna. Proverite dozvole pristupa.' })
     }
+  }
+
+  const varijantaZaVrstu = {
+    uspeh: 'success',
+    istekao: 'warning',
+    nevazeci: 'danger',
+    mreza: 'danger',
+    greska: 'danger',
   }
 
   return (
@@ -42,6 +80,7 @@ function SkenerEkran() {
             <QrReader
               constraints={{ facingMode: 'environment' }}
               onResult={handleResult}
+              scanDelay={500}
               containerStyle={{ width: '100%' }}
             />
           </div>
@@ -49,9 +88,23 @@ function SkenerEkran() {
           <Alert variant="warning">Kamera je isključena ili nedostupna u ovom pregledaču.</Alert>
         )}
 
+        {uToku && (
+          <div className="mb-3 d-flex align-items-center gap-2">
+            <Spinner size="sm" animation="border" />
+            <span>Šalje se...</span>
+          </div>
+        )}
+
         {status && (
-          <Alert variant={status.vrsta === 'uspeh' ? 'success' : 'danger'} className="mb-3">
+          <Alert variant={varijantaZaVrstu[status.vrsta] ?? 'danger'} className="mb-3">
             {status.poruka}
+            {status.vrsta === 'mreza' && (
+              <div className="mt-2">
+                <Button variant="outline-danger" size="sm" onClick={() => posaljiKod(status.kod)}>
+                  Pokušaj ponovo
+                </Button>
+              </div>
+            )}
           </Alert>
         )}
 
@@ -60,13 +113,12 @@ function SkenerEkran() {
             variant="outline-secondary"
             size="sm"
             type="button"
-            onClick={() => obradiSkeniranje(`DUMMY-${Date.now()}`)}
+            disabled={uToku}
+            onClick={() => posaljiKod(`DUMMY-${Date.now()}`)}
           >
-            Simuliraj skeniranje
+            Testiraj nevažeći kod
           </Button>
-          <Badge bg={sledeciTip === 'CHECK_IN' ? 'secondary' : 'primary'}>
-            Sledeće skeniranje: {sledeciTip === 'CHECK_IN' ? 'Check-in' : 'Check-out'}
-          </Badge>
+          <Badge bg="secondary">Tip zapisa određuje server</Badge>
         </div>
       </Card.Body>
     </Card>
