@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 import FormaDodajRadnikaUSmenu from '../../components/organization/FormaDodajRadnikaUSmenu'
 import FormaObavestenje from '../../components/organization/FormaObavestenje'
@@ -6,6 +7,9 @@ import OglasnaTabla from '../../components/organization/OglasnaTabla'
 import PrikazSmena from '../../components/organization/PrikazSmena'
 
 function MenadzerOrganizacijaPage() {
+  const [osvezavanjeObavestenja, setOsvezavanjeObavestenja] = useState(0)
+  const [osvezavanjeSmena, setOsvezavanjeSmena] = useState(0)
+
   return (
     <Container>
       <div className="page-header">
@@ -15,14 +19,14 @@ function MenadzerOrganizacijaPage() {
 
       <Row>
         <Col lg={5}>
-          <FormaObavestenje />
-          <FormaDodajRadnikaUSmenu />
+          <FormaObavestenje onKreirao={() => setOsvezavanjeObavestenja((n) => n + 1)} />
+          <FormaDodajRadnikaUSmenu onDodato={() => setOsvezavanjeSmena((n) => n + 1)} />
         </Col>
 
         <Col lg={7}>
           <MenadzerMolbe />
-          <PrikazSmena />
-          <OglasnaTabla prikaziAkcije/>
+          <PrikazSmena key={osvezavanjeSmena} />
+          <OglasnaTabla key={osvezavanjeObavestenja} prikaziAkcije />
         </Col>
       </Row>
     </Container>
