@@ -1,84 +1,119 @@
-import { useState } from 'react'
-import { Badge, Button, Card, Table } from 'react-bootstrap'
-import { zadaci } from '../../data/tasksDummyData'
+import { useEffect, useState } from 'react'
+import { Alert, Badge, Button, Card, Spinner, Table } from 'react-bootstrap'
+import { useAuth } from '../../context/AuthContext'
+import { dohvatiMojeZadatke, promeniStatusZadatka } from '../../api/zadaciApi'
+import { porukaGreske } from '../../api/greske'
 
-const trenutniRadnik = 'Ana Anić'
+const STATUS_LABELA = {
+  TO_DO: 'Na čekanju',
+  IN_PROGRESS: 'U radu',
+  DONE: 'Završeno',
+}
 
-function getStatusVariant(status) {
-  if (status === 'ZAVRŠENO') return 'success'
-  if (status === 'U RADU') return 'primary'
-  return 'warning'
+const STATUS_VARIJANTA = {
+  TO_DO: 'warning',
+  IN_PROGRESS: 'primary',
+  DONE: 'success',
 }
 
 function ListaZadataka() {
-  const [mojiZadaci, setMojiZadaci] = useState(
-    zadaci.filter((zadatak) => zadatak.radnik === trenutniRadnik),
-  )
+  const { korisnik } = useAuth()
+  const [zadaci, setZadaci] = useState([])
+  const [ucitavanje, setUcitavanje] = useState(true)
+  const [greska, setGreska] = useState(null)
+  const [menjanje, setMenjanje] = useState(null)
 
-  const promeniStatus = (id, noviStatus) => {
-    setMojiZadaci((trenutni) =>
-      trenutni.map((zadatak) =>
-        zadatak.id === id ? { ...zadatak, status: noviStatus } : zadatak,
-      ),
-    )
+  useEffect(() => {
+    async function ucitaj() {
+      try {
+        const podaci = await dohvatiMojeZadatke(korisnik.zaposleni_id)
+        setZadaci(podaci)
+      } catch (e) {
+        setGreska(porukaGreske(e))
+      } finally {
+        setUcitavanje(false)
+      }
+    }
+    ucitaj()
+  }, [korisnik.zaposleni_id])
+
+  async function promeniStatus(zadatakId, noviStatus) {
+    setMenjanje(zadatakId)
+    try {
+      const azuriran = await promeniStatusZadatka(zadatakId, noviStatus)
+      setZadaci((prethodni) =>
+        prethodni.map((z) => (z.id === azuriran.id ? azuriran : z)),
+      )
+    } catch (e) {
+      setGreska(porukaGreske(e))
+    } finally {
+      setMenjanje(null)
+    }
   }
+
+  if (ucitavanje) return <Spinner animation="border" className="d-block mx-auto mt-4" />
+  if (greska) return <Alert variant="danger">{greska}</Alert>
 
   return (
     <Card className="shadow-sm mb-4">
       <Card.Body>
         <Card.Title>Moji zadaci</Card.Title>
         <Card.Text className="text-muted">
-          Zadaci dodeljeni radniku {trenutniRadnik}, sa mogućnošću promene statusa.
+          Zadaci dodeljeni vama, sa mogućnošću promene statusa.
         </Card.Text>
 
-        <Table responsive bordered hover>
-          <thead>
-            <tr>
-              <th>Naziv</th>
-              <th>Rok</th>
-              <th>Prioritet</th>
-              <th>Status</th>
-              <th>Akcije</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mojiZadaci.map((zadatak) => (
-              <tr key={zadatak.id}>
-                <td>
-                  <div>{zadatak.naziv}</div>
-                  <small className="text-muted">{zadatak.opis}</small>
-                </td>
-                <td>{zadatak.rok}</td>
-                <td>{zadatak.prioritet}</td>
-                <td>
-                  <Badge bg={getStatusVariant(zadatak.status)}>{zadatak.status}</Badge>
-                </td>
-                <td>
-                  <div className="organization-actions">
-                    <Button
-                      size="sm"
-                      variant="outline-primary"
-                      type="button"
-                      disabled={zadatak.status !== 'NA ČEKANJU'}
-                      onClick={() => promeniStatus(zadatak.id, 'U RADU')}
-                    >
-                      U radu
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline-success"
-                      type="button"
-                      disabled={zadatak.status === 'ZAVRŠENO'}
-                      onClick={() => promeniStatus(zadatak.id, 'ZAVRŠENO')}
-                    >
-                      Završeno
-                    </Button>
-                  </div>
-                </td>
+        {zadaci.length === 0 ? (
+          <p className="text-muted">Nemate dodeljenih zadataka.</p>
+        ) : (
+          <Table responsive bordered hover>
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>Rok</th>
+                <th>Status</th>
+                <th>Akcije</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {zadaci.map((zadatak) => (
+                <tr key={zadatak.id}>
+                  <td>
+                    <div>{zadatak.naslov}</div>
+                    <small className="text-muted">{zadatak.opis}</small>
+                  </td>
+                  <td>{new Date(zadatak.rok).toLocaleDateString('sr-RS')}</td>
+                  <td>
+                    <Badge bg={STATUS_VARIJANTA[zadatak.status]}>
+                      {STATUS_LABELA[zadatak.status]}
+                    </Badge>
+                  </td>
+                  <td>
+                    <div className="organization-actions">
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        type="button"
+                        disabled={zadatak.status !== 'TO_DO' || menjanje === zadatak.id}
+                        onClick={() => promeniStatus(zadatak.id, 'IN_PROGRESS')}
+                      >
+                        U radu
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline-success"
+                        type="button"
+                        disabled={zadatak.status === 'DONE' || menjanje === zadatak.id}
+                        onClick={() => promeniStatus(zadatak.id, 'DONE')}
+                      >
+                        Završeno
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
       </Card.Body>
     </Card>
   )

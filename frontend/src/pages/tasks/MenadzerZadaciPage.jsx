@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 import FormaZadatak from '../../components/tasks/FormaZadatak'
 import PregledZadatakaMenadzer from '../../components/tasks/PregledZadatakaMenadzer'
 import StatistikaDashboard from '../../components/tasks/StatistikaDashboard'
 
 function MenadzerZadaciPage() {
+  const [osvezavanje, setOsvezavanje] = useState(0)
+
   return (
     <Container>
       <div className="page-header">
@@ -13,7 +16,7 @@ function MenadzerZadaciPage() {
 
       <Row>
         <Col lg={5}>
-          <FormaZadatak />
+          <FormaZadatak onKreirano={() => setOsvezavanje((n) => n + 1)} />
         </Col>
 
         <Col lg={7}>
@@ -23,7 +26,7 @@ function MenadzerZadaciPage() {
 
       <Row>
         <Col>
-          <PregledZadatakaMenadzer />
+          <PregledZadatakaMenadzer osvezavanje={osvezavanje} />
         </Col>
       </Row>
     </Container>
