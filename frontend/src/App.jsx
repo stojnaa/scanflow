@@ -7,6 +7,9 @@ import MojProfilPage from './pages/auth/MojProfilPage'
 import AdminPregledPage from './pages/auth/AdminPregledPage'
 import RadnikOrganizacijaPage from './pages/organization/RadnikOrganizacijaPage'
 import MenadzerOrganizacijaPage from './pages/organization/MenadzerOrganizacijaPage'
+import TerminalPage from './pages/qr/TerminalPage'
+import SkenPage from './pages/qr/SkenPage'
+import MenadzerEvidencijaPage from './pages/qr/MenadzerEvidencijaPage'
 import './App.css'
 
 function AppNavbar() {
@@ -33,6 +36,18 @@ function AppNavbar() {
               </NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/menadzer/organizacija">
                 Menadžer organizacija
+              </NavDropdown.Item>
+            </NavDropdown>
+
+            <NavDropdown title="Evidencija" id="meni-evidencija">
+              <NavDropdown.Item as={Link} to="/terminal/1">
+                Terminal (demo)
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/scan">
+                Skeniraj kod
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/menadzer/evidencija">
+                Ko je na poslu
               </NavDropdown.Item>
             </NavDropdown>
 
@@ -82,6 +97,8 @@ function App() {
         {/* Javne rute */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registracija" element={<RegistracijaPage />} />
+        {/* Terminal je kiosk ekran na fizičkoj lokaciji — bez prijave */}
+        <Route path="/terminal/:id" element={<TerminalPage />} />
 
         {/* Zaštićene (private) rute — provera tokena dolazi u Week 4 */}
         <Route element={<ProtectedRoute />}>
@@ -89,6 +106,8 @@ function App() {
           <Route path="/admin/pregled" element={<AdminPregledPage />} />
           <Route path="/radnik/organizacija" element={<RadnikOrganizacijaPage />} />
           <Route path="/menadzer/organizacija" element={<MenadzerOrganizacijaPage />} />
+          <Route path="/scan" element={<SkenPage />} />
+          <Route path="/menadzer/evidencija" element={<MenadzerEvidencijaPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

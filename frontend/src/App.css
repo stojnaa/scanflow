@@ -39,3 +39,61 @@
   color: #6c757d;
   font-style: italic;
 }
+
+.terminal-page {
+  min-height: calc(100vh - 88px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111827;
+  padding: 24px;
+}
+
+.terminal-card {
+  background: #1f2937;
+  border: none;
+  border-radius: 16px;
+  color: #f9fafb;
+  padding: 16px;
+  min-width: 320px;
+}
+
+.terminal-naziv {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.terminal-lokacija {
+  color: #9ca3af;
+}
+
+.terminal-osvezavanje {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.terminal-qr-wrap {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  display: inline-block;
+}
+
+.terminal-progress {
+  height: 6px;
+  background: #374151;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.terminal-progress-bar {
+  height: 100%;
+  background: #22c55e;
+  transition: width 1s linear;
+}
+
+.skener-video-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 420px;
+}
