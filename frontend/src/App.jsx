@@ -10,6 +10,8 @@ import MenadzerOrganizacijaPage from './pages/organization/MenadzerOrganizacijaP
 import TerminalPage from './pages/qr/TerminalPage'
 import SkenPage from './pages/qr/SkenPage'
 import MenadzerEvidencijaPage from './pages/qr/MenadzerEvidencijaPage'
+import RadnikZadaciPage from './pages/tasks/RadnikZadaciPage'
+import MenadzerZadaciPage from './pages/tasks/MenadzerZadaciPage'
 import './App.css'
 
 function AppNavbar() {
@@ -48,6 +50,15 @@ function AppNavbar() {
               </NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/menadzer/evidencija">
                 Ko je na poslu
+              </NavDropdown.Item>
+            </NavDropdown>
+
+            <NavDropdown title="Zadaci" id="meni-zadaci">
+              <NavDropdown.Item as={Link} to="/radnik/zadaci">
+                Moji zadaci
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/menadzer/zadaci">
+                Zadaci i statistika
               </NavDropdown.Item>
             </NavDropdown>
 
@@ -108,6 +119,8 @@ function App() {
           <Route path="/menadzer/organizacija" element={<MenadzerOrganizacijaPage />} />
           <Route path="/scan" element={<SkenPage />} />
           <Route path="/menadzer/evidencija" element={<MenadzerEvidencijaPage />} />
+          <Route path="/radnik/zadaci" element={<RadnikZadaciPage />} />
+          <Route path="/menadzer/zadaci" element={<MenadzerZadaciPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

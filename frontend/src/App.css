@@ -97,3 +97,7 @@
   overflow: hidden;
   max-width: 420px;
 }
+
+.chart-wrap {
+  width: 100%;
+}
