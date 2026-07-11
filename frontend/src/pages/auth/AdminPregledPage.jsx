@@ -1,9 +1,62 @@
+import { useCallback, useEffect, useState } from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 import FormaDodajRadnikaUTim from '../../components/auth/FormaDodajRadnikaUTim'
 import ListaTimova from '../../components/auth/ListaTimova'
 import ListaZaposlenih from '../../components/auth/ListaZaposlenih'
+import { dohvatiTimove, dohvatiZaposlene } from '../../api/authApi'
+import { porukaGreske } from '../../api/greske'
 
 function AdminPregledPage() {
+  const [zaposleni, setZaposleni] = useState([])
+  const [timovi, setTimovi] = useState([])
+  const [ucitavanjeZaposlenih, setUcitavanjeZaposlenih] = useState(true)
+  const [ucitavanjeTimova, setUcitavanjeTimova] = useState(true)
+  const [greskaZaposleni, setGreskaZaposleni] = useState('')
+  const [greskaTimovi, setGreskaTimovi] = useState('')
+
+  // Lista zaposlenih je dostupna samo administratorima (backend: JeAdmin).
+  const ucitajZaposlene = useCallback(async () => {
+    setUcitavanjeZaposlenih(true)
+    setGreskaZaposleni('')
+    try {
+      setZaposleni(await dohvatiZaposlene())
+    } catch (err) {
+      const status = err?.response?.status
+      setGreskaZaposleni(
+        status === 403
+          ? 'Pregled svih zaposlenih dostupan je samo administratoru.'
+          : porukaGreske(err, 'Učitavanje zaposlenih nije uspelo.'),
+      )
+      setZaposleni([])
+    } finally {
+      setUcitavanjeZaposlenih(false)
+    }
+  }, [])
+
+  const ucitajTimove = useCallback(async () => {
+    setUcitavanjeTimova(true)
+    setGreskaTimovi('')
+    try {
+      setTimovi(await dohvatiTimove())
+    } catch (err) {
+      setGreskaTimovi(porukaGreske(err, 'Učitavanje timova nije uspelo.'))
+      setTimovi([])
+    } finally {
+      setUcitavanjeTimova(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    ucitajZaposlene()
+    ucitajTimove()
+  }, [ucitajZaposlene, ucitajTimove])
+
+  // Nakon dodavanja radnika u tim, osveži oba prikaza (broj članova i timovi zaposlenog).
+  const osveziSve = useCallback(() => {
+    ucitajZaposlene()
+    ucitajTimove()
+  }, [ucitajZaposlene, ucitajTimove])
+
   return (
     <Container>
       <div className="page-header">
@@ -13,12 +66,24 @@ function AdminPregledPage() {
 
       <Row>
         <Col lg={5}>
-          <FormaDodajRadnikaUTim />
-          <ListaTimova />
+          <FormaDodajRadnikaUTim
+            zaposleni={zaposleni}
+            timovi={timovi}
+            onDodato={osveziSve}
+          />
+          <ListaTimova
+            timovi={timovi}
+            ucitavanje={ucitavanjeTimova}
+            greska={greskaTimovi}
+          />
         </Col>
 
         <Col lg={7}>
-          <ListaZaposlenih />
+          <ListaZaposlenih
+            zaposleni={zaposleni}
+            ucitavanje={ucitavanjeZaposlenih}
+            greska={greskaZaposleni}
+          />
         </Col>
       </Row>
     </Container>

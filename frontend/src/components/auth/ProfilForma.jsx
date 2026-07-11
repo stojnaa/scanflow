@@ -1,24 +1,58 @@
-import { useState } from 'react'
-import { Button, Card, Col, Form, Row } from 'react-bootstrap'
-
-// Dummy vrednosti trenutno prijavljenog korisnika (Week 4 -> pravi podaci iz sesije).
-const trenutniKorisnik = {
-  ime: 'Ana',
-  prezime: 'Anić',
-  korIme: 'ana.anic',
-  mejl: 'ana.anic@scanflow.rs',
-  telefon: '+381 60 111 2233',
-  adresa: 'Bulevar oslobođenja 12, Novi Sad',
-}
+import { useEffect, useState } from 'react'
+import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { useAuth } from '../../context/AuthContext'
+import { porukaGreske } from '../../api/greske'
 
 function ProfilForma() {
-  const [validirano, setValidirano] = useState(false)
+  const { korisnik, azurirajKorisnika } = useAuth()
 
-  const posaljiFormu = (event) => {
+  const [podaci, setPodaci] = useState({
+    ime: '',
+    prezime: '',
+    mejl: '',
+    telefon: '',
+    adresa: '',
+  })
+  const [validirano, setValidirano] = useState(false)
+  const [greska, setGreska] = useState('')
+  const [uspeh, setUspeh] = useState('')
+  const [salje, setSalje] = useState(false)
+
+  // Popuni formu podacima prijavljenog korisnika (učitani u AuthContext preko /profil/).
+  useEffect(() => {
+    if (korisnik) {
+      setPodaci({
+        ime: korisnik.ime ?? '',
+        prezime: korisnik.prezime ?? '',
+        mejl: korisnik.mejl ?? '',
+        telefon: korisnik.telefon ?? '',
+        adresa: korisnik.adresa ?? '',
+      })
+    }
+  }, [korisnik])
+
+  const promena = (polje) => (e) =>
+    setPodaci((prethodno) => ({ ...prethodno, [polje]: e.target.value }))
+
+  const posaljiFormu = async (event) => {
     event.preventDefault()
     event.stopPropagation()
-    // Prava izmena podataka preko API-ja dolazi u Week 4.
+
+    const forma = event.currentTarget
     setValidirano(true)
+    if (!forma.checkValidity()) return
+
+    setGreska('')
+    setUspeh('')
+    setSalje(true)
+    try {
+      await azurirajKorisnika(podaci)
+      setUspeh('Podaci su uspešno sačuvani.')
+    } catch (err) {
+      setGreska(porukaGreske(err, 'Čuvanje izmena nije uspelo.'))
+    } finally {
+      setSalje(false)
+    }
   }
 
   return (
@@ -29,12 +63,19 @@ function ProfilForma() {
           Izmenite svoje lične podatke.
         </Card.Text>
 
+        {greska && <Alert variant="danger">{greska}</Alert>}
+        {uspeh && <Alert variant="success">{uspeh}</Alert>}
+
         <Form noValidate validated={validirano} onSubmit={posaljiFormu}>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Ime</Form.Label>
-                <Form.Control required defaultValue={trenutniKorisnik.ime} />
+                <Form.Control
+                  required
+                  value={podaci.ime}
+                  onChange={promena('ime')}
+                />
                 <Form.Control.Feedback type="invalid">
                   Ime je obavezno.
                 </Form.Control.Feedback>
@@ -44,7 +85,11 @@ function ProfilForma() {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Prezime</Form.Label>
-                <Form.Control required defaultValue={trenutniKorisnik.prezime} />
+                <Form.Control
+                  required
+                  value={podaci.prezime}
+                  onChange={promena('prezime')}
+                />
                 <Form.Control.Feedback type="invalid">
                   Prezime je obavezno.
                 </Form.Control.Feedback>
@@ -54,7 +99,7 @@ function ProfilForma() {
 
           <Form.Group className="mb-3">
             <Form.Label>Korisničko ime</Form.Label>
-            <Form.Control defaultValue={trenutniKorisnik.korIme} disabled readOnly />
+            <Form.Control value={korisnik?.kor_ime ?? ''} disabled readOnly />
             <Form.Text className="text-muted">
               Korisničko ime se ne može menjati.
             </Form.Text>
@@ -65,7 +110,8 @@ function ProfilForma() {
             <Form.Control
               required
               type="email"
-              defaultValue={trenutniKorisnik.mejl}
+              value={podaci.mejl}
+              onChange={promena('mejl')}
             />
             <Form.Control.Feedback type="invalid">
               Unesite ispravnu mejl adresu.
@@ -76,7 +122,11 @@ function ProfilForma() {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Telefon</Form.Label>
-                <Form.Control required defaultValue={trenutniKorisnik.telefon} />
+                <Form.Control
+                  required
+                  value={podaci.telefon}
+                  onChange={promena('telefon')}
+                />
                 <Form.Control.Feedback type="invalid">
                   Telefon je obavezan.
                 </Form.Control.Feedback>
@@ -86,13 +136,16 @@ function ProfilForma() {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Adresa</Form.Label>
-                <Form.Control defaultValue={trenutniKorisnik.adresa} />
+                <Form.Control
+                  value={podaci.adresa}
+                  onChange={promena('adresa')}
+                />
               </Form.Group>
             </Col>
           </Row>
 
-          <Button variant="primary" type="submit">
-            Sačuvaj izmene
+          <Button variant="primary" type="submit" disabled={salje}>
+            {salje ? 'Čuvanje...' : 'Sačuvaj izmene'}
           </Button>
         </Form>
       </Card.Body>

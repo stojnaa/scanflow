@@ -1,5 +1,7 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { Button, Card, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
+import { useAuth } from './context/AuthContext'
+import { nazivUloge } from './constants/uloge'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import LoginPage from './pages/auth/LoginPage'
 import RegistracijaPage from './pages/auth/RegistracijaPage'
@@ -14,7 +16,19 @@ import RadnikZadaciPage from './pages/tasks/RadnikZadaciPage'
 import MenadzerZadaciPage from './pages/tasks/MenadzerZadaciPage'
 import './App.css'
 
+// Uloge sa menadžerskim/admin ovlašćenjima.
+const MENADZERSKE_ULOGE = ['MENADZER', 'ADMIN']
+
 function AppNavbar() {
+  const { prijavljen, korisnik, uloga, odjava } = useAuth()
+  const navigate = useNavigate()
+  const jeMenadzer = MENADZERSKE_ULOGE.includes(uloga)
+
+  const odjaviSe = () => {
+    odjava()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
       <Container>
@@ -24,48 +38,72 @@ function AppNavbar() {
 
         <Navbar.Toggle aria-controls="glavni-meni" />
         <Navbar.Collapse id="glavni-meni">
-          <Nav className="ms-auto">
-            <Nav.Link as={Link} to="/profil">
-              Moj profil
-            </Nav.Link>
-            <Nav.Link as={Link} to="/admin/pregled">
-              Zaposleni i timovi
-            </Nav.Link>
+          {prijavljen ? (
+            <>
+              <Nav className="me-auto">
+                <Nav.Link as={Link} to="/profil">
+                  Moj profil
+                </Nav.Link>
+                {jeMenadzer && (
+                  <Nav.Link as={Link} to="/admin/pregled">
+                    Zaposleni i timovi
+                  </Nav.Link>
+                )}
 
-            <NavDropdown title="Organizacija" id="meni-organizacija">
-              <NavDropdown.Item as={Link} to="/radnik/organizacija">
-                Radnik organizacija
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/menadzer/organizacija">
-                Menadžer organizacija
-              </NavDropdown.Item>
-            </NavDropdown>
+                <NavDropdown title="Organizacija" id="meni-organizacija">
+                  <NavDropdown.Item as={Link} to="/radnik/organizacija">
+                    Moja organizacija
+                  </NavDropdown.Item>
+                  {jeMenadzer && (
+                    <NavDropdown.Item as={Link} to="/menadzer/organizacija">
+                      Menadžer organizacija
+                    </NavDropdown.Item>
+                  )}
+                </NavDropdown>
 
-            <NavDropdown title="Evidencija" id="meni-evidencija">
-              <NavDropdown.Item as={Link} to="/terminal/1">
-                Terminal (demo)
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/scan">
-                Skeniraj kod
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/menadzer/evidencija">
-                Ko je na poslu
-              </NavDropdown.Item>
-            </NavDropdown>
+                <NavDropdown title="Evidencija" id="meni-evidencija">
+                  <NavDropdown.Item as={Link} to="/scan">
+                    Skeniraj kod
+                  </NavDropdown.Item>
+                  {jeMenadzer && (
+                    <NavDropdown.Item as={Link} to="/menadzer/evidencija">
+                      Ko je na poslu
+                    </NavDropdown.Item>
+                  )}
+                </NavDropdown>
 
-            <NavDropdown title="Zadaci" id="meni-zadaci">
-              <NavDropdown.Item as={Link} to="/radnik/zadaci">
-                Moji zadaci
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/menadzer/zadaci">
-                Zadaci i statistika
-              </NavDropdown.Item>
-            </NavDropdown>
+                <NavDropdown title="Zadaci" id="meni-zadaci">
+                  <NavDropdown.Item as={Link} to="/radnik/zadaci">
+                    Moji zadaci
+                  </NavDropdown.Item>
+                  {jeMenadzer && (
+                    <NavDropdown.Item as={Link} to="/menadzer/zadaci">
+                      Zadaci i statistika
+                    </NavDropdown.Item>
+                  )}
+                </NavDropdown>
+              </Nav>
 
-            <Nav.Link as={Link} to="/login">
-              Prijava
-            </Nav.Link>
-          </Nav>
+              <Nav className="align-items-lg-center">
+                <Navbar.Text className="me-3">
+                  {korisnik.ime} {korisnik.prezime}{' '}
+                  <span className="text-info">({nazivUloge(uloga)})</span>
+                </Navbar.Text>
+                <Button variant="outline-light" size="sm" onClick={odjaviSe}>
+                  Odjava
+                </Button>
+              </Nav>
+            </>
+          ) : (
+            <Nav className="ms-auto">
+              <Nav.Link as={Link} to="/login">
+                Prijava
+              </Nav.Link>
+              <Nav.Link as={Link} to="/registracija">
+                Registracija
+              </Nav.Link>
+            </Nav>
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>
@@ -73,6 +111,8 @@ function AppNavbar() {
 }
 
 function HomePage() {
+  const { prijavljen } = useAuth()
+
   return (
     <Container>
       <Card className="shadow-sm">
@@ -84,12 +124,20 @@ function HomePage() {
           </p>
 
           <div className="d-flex gap-3 flex-wrap">
-            <Button as={Link} to="/login" variant="primary">
-              Prijava
-            </Button>
-            <Button as={Link} to="/admin/pregled" variant="outline-primary">
-              Zaposleni i timovi
-            </Button>
+            {prijavljen ? (
+              <Button as={Link} to="/profil" variant="primary">
+                Moj profil
+              </Button>
+            ) : (
+              <>
+                <Button as={Link} to="/login" variant="primary">
+                  Prijava
+                </Button>
+                <Button as={Link} to="/registracija" variant="outline-primary">
+                  Registracija
+                </Button>
+              </>
+            )}
           </div>
         </Card.Body>
       </Card>
@@ -111,15 +159,19 @@ function App() {
         {/* Terminal je kiosk ekran na fizičkoj lokaciji — bez prijave */}
         <Route path="/terminal/:id" element={<TerminalPage />} />
 
-        {/* Zaštićene (private) rute — provera tokena dolazi u Week 4 */}
+        {/* Zaštićene rute — dostupne svim prijavljenim korisnicima */}
         <Route element={<ProtectedRoute />}>
           <Route path="/profil" element={<MojProfilPage />} />
-          <Route path="/admin/pregled" element={<AdminPregledPage />} />
           <Route path="/radnik/organizacija" element={<RadnikOrganizacijaPage />} />
-          <Route path="/menadzer/organizacija" element={<MenadzerOrganizacijaPage />} />
           <Route path="/scan" element={<SkenPage />} />
-          <Route path="/menadzer/evidencija" element={<MenadzerEvidencijaPage />} />
           <Route path="/radnik/zadaci" element={<RadnikZadaciPage />} />
+        </Route>
+
+        {/* Zaštićene rute — samo menadžer/admin */}
+        <Route element={<ProtectedRoute uloge={MENADZERSKE_ULOGE} />}>
+          <Route path="/admin/pregled" element={<AdminPregledPage />} />
+          <Route path="/menadzer/organizacija" element={<MenadzerOrganizacijaPage />} />
+          <Route path="/menadzer/evidencija" element={<MenadzerEvidencijaPage />} />
           <Route path="/menadzer/zadaci" element={<MenadzerZadaciPage />} />
         </Route>
 

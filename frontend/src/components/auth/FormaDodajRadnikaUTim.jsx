@@ -1,15 +1,39 @@
 import { useState } from 'react'
-import { Button, Card, Col, Form, Row } from 'react-bootstrap'
-import { timovi, zaposleni } from '../../data/authDummyData'
+import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { dodajRadnikaUTim } from '../../api/authApi'
+import { porukaGreske } from '../../api/greske'
 
-function FormaDodajRadnikaUTim() {
+function FormaDodajRadnikaUTim({ zaposleni, timovi, onDodato }) {
+  const [zaposleniId, setZaposleniId] = useState('')
+  const [timId, setTimId] = useState('')
   const [validirano, setValidirano] = useState(false)
+  const [greska, setGreska] = useState('')
+  const [uspeh, setUspeh] = useState('')
+  const [salje, setSalje] = useState(false)
 
-  const posaljiFormu = (event) => {
+  const posaljiFormu = async (event) => {
     event.preventDefault()
     event.stopPropagation()
-    // Pravo dodavanje radnika u tim preko API-ja dolazi u Week 4.
+
+    const forma = event.currentTarget
     setValidirano(true)
+    if (!forma.checkValidity()) return
+
+    setGreska('')
+    setUspeh('')
+    setSalje(true)
+    try {
+      await dodajRadnikaUTim(Number(timId), Number(zaposleniId))
+      setUspeh('Radnik je dodat u tim.')
+      setZaposleniId('')
+      setTimId('')
+      setValidirano(false)
+      if (onDodato) onDodato()
+    } catch (err) {
+      setGreska(porukaGreske(err, 'Dodavanje radnika u tim nije uspelo.'))
+    } finally {
+      setSalje(false)
+    }
   }
 
   return (
@@ -20,17 +44,24 @@ function FormaDodajRadnikaUTim() {
           Izaberite zaposlenog i tim u koji ga dodajete.
         </Card.Text>
 
+        {greska && <Alert variant="danger">{greska}</Alert>}
+        {uspeh && <Alert variant="success">{uspeh}</Alert>}
+
         <Form noValidate validated={validirano} onSubmit={posaljiFormu}>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Zaposleni</Form.Label>
-                <Form.Select required defaultValue="">
+                <Form.Select
+                  required
+                  value={zaposleniId}
+                  onChange={(e) => setZaposleniId(e.target.value)}
+                >
                   <option value="" disabled>
                     Izaberite zaposlenog...
                   </option>
                   {zaposleni.map((radnik) => (
-                    <option key={radnik.id} value={radnik.id}>
+                    <option key={radnik.zaposleni_id} value={radnik.zaposleni_id}>
                       {radnik.ime} {radnik.prezime}
                     </option>
                   ))}
@@ -44,7 +75,11 @@ function FormaDodajRadnikaUTim() {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Tim</Form.Label>
-                <Form.Select required defaultValue="">
+                <Form.Select
+                  required
+                  value={timId}
+                  onChange={(e) => setTimId(e.target.value)}
+                >
                   <option value="" disabled>
                     Izaberite tim...
                   </option>
@@ -61,8 +96,8 @@ function FormaDodajRadnikaUTim() {
             </Col>
           </Row>
 
-          <Button variant="primary" type="submit">
-            Dodaj u tim
+          <Button variant="primary" type="submit" disabled={salje}>
+            {salje ? 'Dodavanje...' : 'Dodaj u tim'}
           </Button>
         </Form>
       </Card.Body>

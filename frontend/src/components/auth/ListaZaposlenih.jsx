@@ -1,50 +1,68 @@
-import { Badge, Card, Table } from 'react-bootstrap'
-import { uloge, zaposleni } from '../../data/authDummyData'
+import { Alert, Badge, Card, Spinner, Table } from 'react-bootstrap'
+import { nazivUloge } from '../../constants/uloge'
 
-function nazivUloge(vrednost) {
-  const uloga = uloge.find((u) => u.vrednost === vrednost)
-  return uloga ? uloga.naziv : vrednost
+function imenaTimova(timovi) {
+  if (!timovi || timovi.length === 0) return '—'
+  return timovi.map((t) => t.naziv).join(', ')
 }
 
-function ListaZaposlenih() {
+function ListaZaposlenih({ zaposleni, ucitavanje, greska }) {
   return (
     <Card className="shadow-sm mb-4">
       <Card.Body>
         <Card.Title>Zaposleni</Card.Title>
         <Card.Text className="text-muted">
-          Pregled svih zaposlenih sa ulogom i pripadajućim timom.
+          Pregled svih zaposlenih sa ulogom i pripadajućim timovima.
         </Card.Text>
 
-        <Table responsive bordered hover>
-          <thead>
-            <tr>
-              <th>Ime i prezime</th>
-              <th>Korisničko ime</th>
-              <th>Mejl</th>
-              <th>Uloga</th>
-              <th>Tim</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {zaposleni.map((radnik) => (
-              <tr key={radnik.id}>
-                <td>
-                  {radnik.ime} {radnik.prezime}
-                </td>
-                <td>{radnik.korIme}</td>
-                <td>{radnik.mejl}</td>
-                <td>{nazivUloge(radnik.uloga)}</td>
-                <td>{radnik.tim}</td>
-                <td>
-                  <Badge bg={radnik.aktivan ? 'success' : 'secondary'}>
-                    {radnik.aktivan ? 'Aktivan' : 'Neaktivan'}
-                  </Badge>
-                </td>
+        {ucitavanje && (
+          <div className="text-center py-3">
+            <Spinner animation="border" size="sm" /> Učitavanje...
+          </div>
+        )}
+
+        {!ucitavanje && greska && <Alert variant="warning">{greska}</Alert>}
+
+        {!ucitavanje && !greska && (
+          <Table responsive bordered hover>
+            <thead>
+              <tr>
+                <th>Ime i prezime</th>
+                <th>Korisničko ime</th>
+                <th>Mejl</th>
+                <th>Uloga</th>
+                <th>Timovi</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {zaposleni.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="organization-empty">
+                    Nema zaposlenih za prikaz.
+                  </td>
+                </tr>
+              ) : (
+                zaposleni.map((radnik) => (
+                  <tr key={radnik.zaposleni_id}>
+                    <td>
+                      {radnik.ime} {radnik.prezime}
+                    </td>
+                    <td>{radnik.kor_ime}</td>
+                    <td>{radnik.mejl}</td>
+                    <td>{nazivUloge(radnik.uloga)}</td>
+                    <td>{imenaTimova(radnik.timovi)}</td>
+                    <td>
+                      <Badge bg={radnik.aktivan ? 'success' : 'secondary'}>
+                        {radnik.aktivan ? 'Aktivan' : 'Neaktivan'}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+        )}
       </Card.Body>
     </Card>
   )
