@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Lokalni HTTPS sertifikat za testiranje na telefonu (generiše se po mašini, ne deli se)
+.cert
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
