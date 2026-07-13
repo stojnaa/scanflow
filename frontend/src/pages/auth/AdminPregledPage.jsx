@@ -62,7 +62,7 @@ function AdminPregledPage() {
   return (
     <Container>
       <div className="page-header">
-        <h1>Admin / Menadžer — Pregled</h1>
+        <h1>Menadžer — Pregled</h1>
         <p>Pregled zaposlenih i timova i dodavanje radnika u tim.</p>
       </div>
 
@@ -77,6 +77,7 @@ function AdminPregledPage() {
             timovi={timovi}
             ucitavanje={ucitavanjeTimova}
             greska={greskaTimovi}
+            onTimKreiran={osveziSve}
           />
         </Col>
 

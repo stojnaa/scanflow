@@ -54,3 +54,7 @@ export async function dodajRadnikaUTim(timId, zaposleniId) {
   })
   return data
 }
+export async function kreirajTim(naziv) {
+  const { data } = await client.post('/menadzer/timovi/', { naziv })
+  return data
+}

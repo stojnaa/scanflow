@@ -38,6 +38,7 @@ from .serializers import (
     ZadatakSerializer,
     ZaposleniDetailSerializer,
     ZaposleniSerializer,
+    KreiranjeTimaSerializer,
 )
 
 QR_TOKEN_TRAJANJE_SEKUNDI = 30
@@ -98,7 +99,18 @@ def moj_profil(request):
 def lista_timova(request):
     timovi = Tim.objects.all().order_by('naziv')
     return Response(TimSerializer(timovi, many=True).data)
+@api_view(['POST'])
+@permission_classes([JeMenadzerIliAdmin])
+def kreiraj_tim(request):
+    serializer = KreiranjeTimaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
+    tim = Tim.objects.create(
+        naziv=serializer.validated_data['naziv'],
+        menadzer=request.user,
+    )
+
+    return Response(TimSerializer(tim).data, status=status.HTTP_201_CREATED)
 @api_view(['GET'])
 @permission_classes([JeMenadzerIliAdmin])
 def menadzer_lista_radnika(request):
@@ -629,7 +641,7 @@ def _broj_prisutnih():
 
 
 @api_view(['GET'])
-@permission_classes([JeAdmin])
+@permission_classes([JeMenadzerIliAdmin])
 def admin_statistika_export_csv(request):
     zavrsene = _zavrsene_smene()
     sati_po_mesecu = defaultdict(float)

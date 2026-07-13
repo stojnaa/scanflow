@@ -17,6 +17,7 @@ urlpatterns = [
     path('smene/moje/<int:zaposleni_id>/', views.moje_smene, name='moje_smene'),
 path('menadzer/zaposleni/', views.menadzer_lista_radnika, name='menadzer-lista-radnika'),
     path('menadzer/timovi/<int:tim_id>/dodaj-radnika/', views.dodaj_radnika_u_tim, name='dodaj_radnika_u_tim'),
+path('menadzer/timovi/', views.kreiraj_tim, name='kreiraj_tim'),
     path('menadzer/zaposleni/<int:zaposleni_id>/status/', views.promeni_status_zaposlenog, name='promeni_status_zaposlenog'),
 
     path('admin/zaposleni/', views.admin_lista_zaposlenih, name='admin_lista_zaposlenih'),
@@ -50,4 +51,5 @@ path('menadzer/zaposleni/', views.menadzer_lista_radnika, name='menadzer-lista-r
     path('menadzer/statistika/radni-sati/', views.menadzer_statistika_radni_sati, name='menadzer_statistika_radni_sati'),
     path('admin/statistika/', views.admin_statistika, name='admin_statistika'),
     path('admin/statistika/export/', views.admin_statistika_export_csv, name='admin_statistika_export_csv'),
+path('menadzer/statistika/export/', views.admin_statistika_export_csv, name='menadzer_statistika_export_csv'),
 ]

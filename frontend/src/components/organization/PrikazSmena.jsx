@@ -6,7 +6,7 @@ import { porukaGreske } from '../../api/greske'
 
 const TIP_LABELA = { PRVA: 'Prva', DRUGA: 'Druga', TRECA: 'Treća' }
 
-function PrikazSmena() {
+function PrikazSmena({osvezavanje=0}) {
   const { korisnik, uloga } = useAuth()
   const jeMenadzer = uloga === 'MENADZER' || uloga === 'ADMIN'
 
@@ -28,7 +28,7 @@ function PrikazSmena() {
       }
     }
     ucitaj()
-  }, [jeMenadzer, korisnik.zaposleni_id])
+  }, [jeMenadzer, korisnik.zaposleni_id,osvezavanje])
 
   if (ucitavanje) return <Spinner animation="border" className="d-block mx-auto mt-4" />
   if (greska) return <Alert variant="danger">{greska}</Alert>

@@ -10,6 +10,7 @@ function FormaMolba({ onPoslato }) {
   const [slanje, setSlanje] = useState(false)
   const [uspeh, setUspeh] = useState(false)
   const formRef = useRef(null)
+  const danas = new Date().toISOString().split('T')[0]
 
   async function onSubmit(e) {
     e.preventDefault()
@@ -24,6 +25,10 @@ function FormaMolba({ onPoslato }) {
       setGreska('Popunite naslov i datum.')
       return
     }
+    if (datum < danas) {
+  setGreska('Ne možete poslati molbu za slobodan dan u prošlosti.')
+  return
+}
 
     setSlanje(true)
     try {
@@ -59,7 +64,15 @@ function FormaMolba({ onPoslato }) {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Datum slobodnog dana</Form.Label>
-                <Form.Control name="datum" type="date" required />
+                <Form.Control
+  name="datum"
+  type="date"
+  min={danas}
+  required
+/>
+<Form.Control.Feedback type="invalid">
+    Izaberite današnji ili budući datum.
+  </Form.Control.Feedback>
               </Form.Group>
             </Col>
 

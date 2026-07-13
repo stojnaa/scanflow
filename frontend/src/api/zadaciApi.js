@@ -31,7 +31,10 @@ export async function dohvatiStatistikuRadnihSati() {
 }
 
 // GET /admin/statistika/export/  ->  CSV blob
+// GET /menadzer/statistika/export/  ->  CSV blob
 export async function izvezi_csv() {
-  const response = await client.get('/admin/statistika/export/', { responseType: 'blob' })
+  const response = await client.get('/menadzer/statistika/export/', {
+    responseType: 'blob',
+  })
   return response
 }

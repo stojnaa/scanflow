@@ -25,7 +25,8 @@ function MenadzerOrganizacijaPage() {
 
         <Col lg={7}>
           <MenadzerMolbe />
-          <PrikazSmena key={osvezavanjeSmena} />
+
+          <PrikazSmena osvezavanje={osvezavanjeSmena} />
           <OglasnaTabla key={osvezavanjeObavestenja} prikaziAkcije />
         </Col>
       </Row>

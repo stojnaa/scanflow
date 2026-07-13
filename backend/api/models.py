@@ -75,12 +75,20 @@ class Zadatak(models.Model):
         IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
         DONE = 'DONE', 'Done'
 
+    class Prioritet(models.TextChoices):
+        NIZAK = 'NIZAK', 'Nizak'
+        SREDNJI = 'SREDNJI', 'Srednji'
+        VISOK = 'VISOK', 'Visok'
     naslov = models.CharField(max_length=100)
     opis = models.TextField()
     datum_kreiranja = models.DateTimeField(auto_now_add=True)
     rok = models.DateTimeField()
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.TO_DO)
-
+    prioritet = models.CharField(
+        max_length=10,
+        choices=Prioritet.choices,
+        default=Prioritet.SREDNJI,
+    )
     # kreirao_id -> Zaposleni; D:R -> PROTECT
     kreirao = models.ForeignKey(
         Zaposleni,

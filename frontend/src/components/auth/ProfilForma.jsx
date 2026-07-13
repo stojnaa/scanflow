@@ -17,6 +17,7 @@ function ProfilForma() {
   const [greska, setGreska] = useState('')
   const [uspeh, setUspeh] = useState('')
   const [salje, setSalje] = useState(false)
+  const [uredjuje, setUredjuje] = useState(false)
 
   // Popuni formu podacima prijavljenog korisnika (učitani u AuthContext preko /profil/).
   useEffect(() => {
@@ -47,7 +48,8 @@ function ProfilForma() {
     setSalje(true)
     try {
       await azurirajKorisnika(podaci)
-      setUspeh('Podaci su uspešno sačuvani.')
+    setUspeh('Podaci su uspešno sačuvani.')
+    setUredjuje(false)
     } catch (err) {
       setGreska(porukaGreske(err, 'Čuvanje izmena nije uspelo.'))
     } finally {
@@ -75,6 +77,7 @@ function ProfilForma() {
                   required
                   value={podaci.ime}
                   onChange={promena('ime')}
+                  readOnly={!uredjuje}
                 />
                 <Form.Control.Feedback type="invalid">
                   Ime je obavezno.
@@ -89,6 +92,7 @@ function ProfilForma() {
                   required
                   value={podaci.prezime}
                   onChange={promena('prezime')}
+                  readOnly={!uredjuje}
                 />
                 <Form.Control.Feedback type="invalid">
                   Prezime je obavezno.
@@ -112,6 +116,7 @@ function ProfilForma() {
               type="email"
               value={podaci.mejl}
               onChange={promena('mejl')}
+              readOnly={!uredjuje}
             />
             <Form.Control.Feedback type="invalid">
               Unesite ispravnu mejl adresu.
@@ -126,6 +131,7 @@ function ProfilForma() {
                   required
                   value={podaci.telefon}
                   onChange={promena('telefon')}
+                  readOnly={!uredjuje}
                 />
                 <Form.Control.Feedback type="invalid">
                   Telefon je obavezan.
@@ -139,14 +145,37 @@ function ProfilForma() {
                 <Form.Control
                   value={podaci.adresa}
                   onChange={promena('adresa')}
+                  readOnly={!uredjuje}
                 />
               </Form.Group>
             </Col>
           </Row>
 
-          <Button variant="primary" type="submit" disabled={salje}>
-            {salje ? 'Čuvanje...' : 'Sačuvaj izmene'}
-          </Button>
+          <div className="d-flex gap-2">
+  {!uredjuje && (
+    <Button
+      variant="primary"
+      type="button"
+      onClick={() => {
+        setUredjuje(true)
+        setGreska('')
+        setUspeh('')
+      }}
+    >
+      Izmeni
+    </Button>
+  )}
+
+  {uredjuje && (
+    <Button
+      variant="success"
+      type="submit"
+      disabled={salje}
+    >
+      {salje ? 'Čuvanje...' : 'Sačuvaj'}
+    </Button>
+  )}
+</div>
         </Form>
       </Card.Body>
     </Card>

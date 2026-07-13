@@ -6,6 +6,7 @@ from .models import (
 )
 import re
 from datetime import date
+from django.utils import timezone
 
 
 class ZaposleniSerializer(serializers.ModelSerializer):
@@ -41,6 +42,20 @@ class TimSerializer(serializers.ModelSerializer):
         model = Tim
         fields = ['tim_id', 'naziv', 'menadzer', 'menadzer_detail', 'clanovi_detail']
 
+
+class KreiranjeTimaSerializer(serializers.Serializer):
+    naziv = serializers.CharField(max_length=100)
+
+    def validate_naziv(self, value):
+        naziv = value.strip()
+
+        if not naziv:
+            raise serializers.ValidationError('Naziv tima je obavezan.')
+
+        if Tim.objects.filter(naziv__iexact=naziv).exists():
+            raise serializers.ValidationError('Tim sa ovim nazivom već postoji.')
+
+        return naziv
 
 class ZaposleniDetailSerializer(serializers.ModelSerializer):
     """Pun prikaz zaposlenog (bez sifra_hash) - koristi se za admin uvid, profil i odgovore na auth rute."""
@@ -183,6 +198,12 @@ class MolbaSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['status', 'datum_kreiranja', 'datum_resenja', 'resio']
 
+    def validate_datum_za_koji_se_trazi(self, value):
+        if value < date.today():
+            raise serializers.ValidationError(
+                'Ne možete poslati molbu za slobodan dan u prošlosti.'
+            )
+        return value
 
 class ObavestenjeSerializer(serializers.ModelSerializer):
     autor_detail = ZaposleniSerializer(source='autor', read_only=True)
@@ -243,16 +264,36 @@ class EvidencijaSerializer(serializers.ModelSerializer):
 
 class ZadatakSerializer(serializers.ModelSerializer):
     kreirao_detail = ZaposleniSerializer(source='kreirao', read_only=True)
-    dodeljeni_detail = ZaposleniSerializer(source='dodeljeni', many=True, read_only=True)
+    dodeljeni_detail = ZaposleniSerializer(
+        source='dodeljeni',
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = Zadatak
         fields = [
-            'zadatak_id', 'naslov', 'opis', 'datum_kreiranja', 'rok', 'status',
-            'kreirao', 'kreirao_detail', 'dodeljeni', 'dodeljeni_detail',
+            'zadatak_id',
+            'naslov',
+            'opis',
+            'datum_kreiranja',
+            'rok',
+            'status',
+            'prioritet',
+            'kreirao',
+            'kreirao_detail',
+            'dodeljeni',
+            'dodeljeni_detail',
         ]
         read_only_fields = ['datum_kreiranja', 'status', 'kreirao']
 
+    def validate_rok(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError(
+                'Rok zadatka ne može biti u prošlosti.'
+            )
+
+        return value
 
 class PromenaStatusaZadatkaSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Zadatak.Status.choices)
