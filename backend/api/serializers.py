@@ -4,6 +4,8 @@ from .models import (
     Zaposleni, Tim, Molba, Obavestenje, Smena, SmenaZaposleni,
     QrTerminal, Evidencija, Zadatak,
 )
+import re
+from datetime import date
 
 
 class ZaposleniSerializer(serializers.ModelSerializer):
@@ -84,6 +86,47 @@ class RegistracijaSerializer(serializers.ModelSerializer):
         zaposleni.sifra_hash = make_password(sifra)
         zaposleni.save()
         return zaposleni
+    def validate_telefon(self, value):
+        normalizovan = re.sub(r'[ \-/.]', '', value)
+
+        if not re.fullmatch(r'(?:\+381|0)[1-9]\d{7,8}', normalizovan):
+            raise serializers.ValidationError(
+                'Unesite ispravan broj telefona (npr. 060 123 4567 ili +381 60 123 4567).'
+            )
+
+        return value
+
+    def validate_datum_rodjenja(self, value):
+        danas = date.today()
+
+        if value >= danas:
+            raise serializers.ValidationError('Datum rođenja mora biti u prošlosti.')
+
+        godine = danas.year - value.year - (
+            (danas.month, danas.day) < (value.month, value.day)
+        )
+
+        if godine < 16:
+            raise serializers.ValidationError('Zaposleni mora imati najmanje 16 godina.')
+
+        return value
+
+    def validate_datum_zaposlenja(self, value):
+        if value > date.today():
+            raise serializers.ValidationError('Datum zaposlenja ne može biti u budućnosti.')
+
+        return value
+
+    def validate(self, attrs):
+        rodjenje = attrs.get('datum_rodjenja')
+        zaposlenje = attrs.get('datum_zaposlenja')
+
+        if rodjenje and zaposlenje and zaposlenje <= rodjenje:
+            raise serializers.ValidationError(
+                'Datum zaposlenja mora biti posle datuma rođenja.'
+            )
+
+        return attrs
 
 
 class LoginSerializer(serializers.Serializer):

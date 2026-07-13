@@ -25,6 +25,8 @@ function RegistracijaForma() {
   const [greska, setGreska] = useState('')
   const [salje, setSalje] = useState(false)
 
+  const danas = new Date().toISOString().split('T')[0]
+
   const promena = (polje) => (e) =>
     setPodaci((prethodno) => ({ ...prethodno, [polje]: e.target.value }))
 
@@ -34,14 +36,15 @@ function RegistracijaForma() {
 
     const forma = event.currentTarget
     setValidirano(true)
+
     if (!forma.checkValidity()) return
 
     setGreska('')
     setSalje(true)
+
     try {
       await registracija(podaci)
-      // Backend vraća token pa je korisnik odmah prijavljen -> vodi ga na profil.
-      navigate('/profil', { replace: true })
+      navigate('/radnik/organizacija', { replace: true })
     } catch (err) {
       setGreska(porukaGreske(err, 'Registracija nije uspela. Proverite unete podatke.'))
     } finally {
@@ -99,6 +102,7 @@ function RegistracijaForma() {
                 <Form.Control
                   required
                   type="date"
+                  max={danas}
                   value={podaci.datum_rodjenja}
                   onChange={promena('datum_rodjenja')}
                 />
@@ -114,6 +118,7 @@ function RegistracijaForma() {
                 <Form.Control
                   required
                   type="date"
+                  max={danas}
                   value={podaci.datum_zaposlenja}
                   onChange={promena('datum_zaposlenja')}
                 />
@@ -188,11 +193,12 @@ function RegistracijaForma() {
                 <Form.Control
                   required
                   placeholder="+381 60 000 0000"
+                  pattern="(\+381|0)[ ]?[1-9]([ \-]?[0-9]){7,8}"
                   value={podaci.telefon}
                   onChange={promena('telefon')}
                 />
                 <Form.Control.Feedback type="invalid">
-                  Telefon je obavezan.
+                  Unesite ispravan srpski broj telefona (npr. 060 123 4567).
                 </Form.Control.Feedback>
               </Form.Group>
             </Col>

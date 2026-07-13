@@ -28,9 +28,10 @@ function LoginForma() {
     try {
       await prijava(korImeIliMejl, sifra)
       // Vrati korisnika tamo gde je pošao pre preusmeravanja na login, ili na profil.
-      const odrediste = location.state?.odKuda || '/profil'
+      const odrediste = location.state?.odKuda || '/radnik/organizacija'
       navigate(odrediste, { replace: true })
     } catch (err) {
+        setValidirano(false)
       setGreska(porukaGreske(err, 'Pogrešno korisničko ime/email ili lozinka.'))
     } finally {
       setSalje(false)
