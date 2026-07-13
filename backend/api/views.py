@@ -114,14 +114,22 @@ def kreiraj_tim(request):
 @api_view(['GET'])
 @permission_classes([JeMenadzerIliAdmin])
 def menadzer_lista_radnika(request):
-    radnici = Zaposleni.objects.filter(
-        uloga=Zaposleni.Uloga.RADNIK,
+    zaposleni = Zaposleni.objects.filter(
         aktivan=True
     ).order_by('prezime', 'ime')
 
-    serializer = ZaposleniSerializer(radnici, many=True)
-    return Response(serializer.data)
+    # Menadžer ne treba da vidi administratore jer ne sme da menja njihovu ulogu.
+    if request.user.uloga == Zaposleni.Uloga.MENADZER:
+        zaposleni = zaposleni.exclude(
+            uloga=Zaposleni.Uloga.ADMIN
+        )
 
+    serializer = ZaposleniDetailSerializer(
+        zaposleni,
+        many=True,
+    )
+
+    return Response(serializer.data)
 @api_view(['POST'])
 @permission_classes([JeMenadzerIliAdmin])
 def dodaj_radnika_u_tim(request, tim_id):
