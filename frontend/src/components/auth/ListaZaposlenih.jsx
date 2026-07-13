@@ -51,7 +51,7 @@ function ListaZaposlenih({ zaposleni, ucitavanje, greska }) {
                     <td>{radnik.kor_ime}</td>
                     <td>{radnik.mejl}</td>
                     <td>{nazivUloge(radnik.uloga)}</td>
-                    <td>{imenaTimova(radnik.timovi)}</td>
+                    <td>{imenaTimova(radnik.timovi_detail)}</td>
                     <td>
                       <Badge bg={radnik.aktivan ? 'success' : 'secondary'}>
                         {radnik.aktivan ? 'Aktivan' : 'Neaktivan'}

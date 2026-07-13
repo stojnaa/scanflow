@@ -7,10 +7,29 @@ from .models import (
 
 
 class ZaposleniSerializer(serializers.ModelSerializer):
+    timovi_detail = serializers.SerializerMethodField()
+
     class Meta:
         model = Zaposleni
-        fields = ['zaposleni_id', 'ime', 'prezime', 'mejl', 'uloga']
+        fields = [
+            'zaposleni_id',
+            'ime',
+            'prezime',
+            'kor_ime',
+            'mejl',
+            'uloga',
+            'aktivan',
+            'timovi_detail',
+        ]
 
+    def get_timovi_detail(self, obj):
+        return [
+            {
+                'tim_id': tim.tim_id,
+                'naziv': tim.naziv,
+            }
+            for tim in obj.timovi.all()
+        ]
 
 class TimSerializer(serializers.ModelSerializer):
     menadzer_detail = ZaposleniSerializer(source='menadzer', read_only=True)
