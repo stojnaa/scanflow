@@ -101,3 +101,21 @@
 .chart-wrap {
   width: 100%;
 }
+
+.qr-reader-wrapper {
+  width: 100%;
+  min-height: 360px;
+  background: #111827;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.qr-reader-wrapper video {
+  width: 100% !important;
+  min-height: 360px;
+  object-fit: cover;
+}
+
+.qr-reader-wrapper img {
+  display: none;
+}

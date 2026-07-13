@@ -37,19 +37,23 @@ function ListaZadataka() {
     ucitaj()
   }, [korisnik.zaposleni_id])
 
-  async function promeniStatus(zadatakId, noviStatus) {
-    setMenjanje(zadatakId)
-    try {
-      const azuriran = await promeniStatusZadatka(zadatakId, noviStatus)
-      setZadaci((prethodni) =>
-        prethodni.map((z) => (z.id === azuriran.id ? azuriran : z)),
-      )
-    } catch (e) {
-      setGreska(porukaGreske(e))
-    } finally {
-      setMenjanje(null)
-    }
+async function promeniStatus(zadatakId, noviStatus) {
+  setMenjanje(zadatakId)
+
+  try {
+    const azuriran = await promeniStatusZadatka(zadatakId, noviStatus)
+
+    setZadaci((prethodni) =>
+      prethodni.map((z) =>
+        z.zadatak_id === azuriran.zadatak_id ? azuriran : z
+      ),
+    )
+  } catch (e) {
+    setGreska(porukaGreske(e))
+  } finally {
+    setMenjanje(null)
   }
+}
 
   if (ucitavanje) return <Spinner animation="border" className="d-block mx-auto mt-4" />
   if (greska) return <Alert variant="danger">{greska}</Alert>
@@ -76,7 +80,7 @@ function ListaZadataka() {
             </thead>
             <tbody>
               {zadaci.map((zadatak) => (
-                <tr key={zadatak.id}>
+                <tr key={zadatak.zadatak_id}>
                   <td>
                     <div>{zadatak.naslov}</div>
                     <small className="text-muted">{zadatak.opis}</small>
@@ -93,8 +97,8 @@ function ListaZadataka() {
                         size="sm"
                         variant="outline-primary"
                         type="button"
-                        disabled={zadatak.status !== 'TO_DO' || menjanje === zadatak.id}
-                        onClick={() => promeniStatus(zadatak.id, 'IN_PROGRESS')}
+                        disabled={zadatak.status !== 'TO_DO' || menjanje === zadatak.zadatak_id}
+                        onClick={() => promeniStatus(zadatak.zadatak_id, 'IN_PROGRESS')}
                       >
                         U radu
                       </Button>
@@ -102,8 +106,8 @@ function ListaZadataka() {
                         size="sm"
                         variant="outline-success"
                         type="button"
-                        disabled={zadatak.status === 'DONE' || menjanje === zadatak.id}
-                        onClick={() => promeniStatus(zadatak.id, 'DONE')}
+                        disabled={zadatak.status === 'DONE' || menjanje === zadatak.zadatak_id}
+                        onClick={() => promeniStatus(zadatak.zadatak_id, 'DONE')}
                       >
                         Završeno
                       </Button>

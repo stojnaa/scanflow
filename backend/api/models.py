@@ -182,10 +182,10 @@ class Molba(models.Model):
 
 
 class QrTerminal(models.Model):
-    terminal_id = models.AutoField(primary_key=True, db_column='terminal_id')
+    qr_terminal_id = models.AutoField(primary_key=True, db_column='qr_terminal_id')
 
     naziv = models.CharField(max_length=100)
-    lokacija = models.CharField(max_length=100)
+    lokacija = models.CharField(max_length=100, null=True, blank=True)
     aktivan = models.BooleanField(default=True)
 
     class Meta:

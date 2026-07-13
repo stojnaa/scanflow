@@ -182,7 +182,7 @@ class SmenaZaposleniSerializer(serializers.ModelSerializer):
 class QrTerminalSerializer(serializers.ModelSerializer):
     class Meta:
         model = QrTerminal
-        fields = ['terminal_id', 'naziv', 'lokacija', 'aktivan']
+        fields = ['qr_terminal_id', 'naziv', 'lokacija', 'aktivan']
 
 
 class SkeniranjeSerializer(serializers.Serializer):

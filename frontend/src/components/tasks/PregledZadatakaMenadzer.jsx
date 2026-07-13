@@ -59,18 +59,18 @@ function PregledZadatakaMenadzer({ osvezavanje }) {
             </thead>
             <tbody>
               {zadaci.map((zadatak) => (
-                <tr key={zadatak.id}>
+                <tr key={zadatak.zadatak_id}>
                   <td>
                     <div>{zadatak.naslov}</div>
                     <small className="text-muted">{zadatak.opis}</small>
                   </td>
                   <td>
-                    {zadatak.dodeljeni_detail?.map((z) => (
-                      <span key={z.zaposleni_id}>
-                        {z.ime} {z.prezime}
-                      </span>
-                    ))}
-                  </td>
+  {zadatak.dodeljeni_detail && zadatak.dodeljeni_detail.length > 0
+    ? zadatak.dodeljeni_detail
+        .map((z) => `${z.ime} ${z.prezime}`)
+        .join(', ')
+    : '—'}
+</td>
                   <td>{new Date(zadatak.rok).toLocaleDateString('sr-RS')}</td>
                   <td>
                     <Badge bg={STATUS_VARIJANTA[zadatak.status]}>
