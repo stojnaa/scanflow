@@ -3,10 +3,12 @@ import { Col, Container, Row } from 'react-bootstrap'
 import FormaDodajRadnikaUTim from '../../components/auth/FormaDodajRadnikaUTim'
 import ListaTimova from '../../components/auth/ListaTimova'
 import ListaZaposlenih from '../../components/auth/ListaZaposlenih'
-import { dohvatiTimove, dohvatiZaposlene } from '../../api/authApi'
+import { dohvatiTimove, dohvatiZaposlene, dohvatiRadnikeZaMenadzera } from '../../api/authApi'
 import { porukaGreske } from '../../api/greske'
-
+import { useAuth } from '../../context/AuthContext'
 function AdminPregledPage() {
+    const { uloga } = useAuth()
+    const jeAdmin = uloga === 'ADMIN'
   const [zaposleni, setZaposleni] = useState([])
   const [timovi, setTimovi] = useState([])
   const [ucitavanjeZaposlenih, setUcitavanjeZaposlenih] = useState(true)
@@ -16,22 +18,22 @@ function AdminPregledPage() {
 
   // Lista zaposlenih je dostupna samo administratorima (backend: JeAdmin).
   const ucitajZaposlene = useCallback(async () => {
-    setUcitavanjeZaposlenih(true)
-    setGreskaZaposleni('')
-    try {
-      setZaposleni(await dohvatiZaposlene())
-    } catch (err) {
-      const status = err?.response?.status
-      setGreskaZaposleni(
-        status === 403
-          ? 'Pregled svih zaposlenih dostupan je samo administratoru.'
-          : porukaGreske(err, 'Učitavanje zaposlenih nije uspelo.'),
-      )
-      setZaposleni([])
-    } finally {
-      setUcitavanjeZaposlenih(false)
-    }
-  }, [])
+  setUcitavanjeZaposlenih(true)
+  setGreskaZaposleni('')
+
+  try {
+    const podaci = jeAdmin
+      ? await dohvatiZaposlene()
+      : await dohvatiRadnikeZaMenadzera()
+
+    setZaposleni(podaci)
+  } catch (err) {
+    setGreskaZaposleni(porukaGreske(err, 'Učitavanje zaposlenih nije uspelo.'))
+    setZaposleni([])
+  } finally {
+    setUcitavanjeZaposlenih(false)
+  }
+}, [jeAdmin])
 
   const ucitajTimove = useCallback(async () => {
     setUcitavanjeTimova(true)

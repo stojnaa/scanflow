@@ -40,7 +40,7 @@ function ListaTimova({ timovi, ucitavanje, greska }) {
                 </tr>
               ) : (
                 timovi.map((tim) => (
-                  <tr key={tim.id}>
+                  <tr key={tim.tim_id}>
                     <td>{tim.naziv}</td>
                     <td>{imeMenadzera(tim)}</td>
                     <td>{tim.clanovi_detail ? tim.clanovi_detail.length : 0}</td>

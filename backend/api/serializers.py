@@ -18,7 +18,7 @@ class TimSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tim
-        fields = ['id', 'naziv', 'menadzer', 'menadzer_detail', 'clanovi_detail']
+        fields = ['tim_id', 'naziv', 'menadzer', 'menadzer_detail', 'clanovi_detail']
 
 
 class ZaposleniDetailSerializer(serializers.ModelSerializer):
@@ -163,7 +163,7 @@ class SmenaZaposleniSerializer(serializers.ModelSerializer):
 class QrTerminalSerializer(serializers.ModelSerializer):
     class Meta:
         model = QrTerminal
-        fields = ['id', 'naziv', 'lokacija', 'aktivan']
+        fields = ['terminal_id', 'naziv', 'lokacija', 'aktivan']
 
 
 class SkeniranjeSerializer(serializers.Serializer):
@@ -175,7 +175,7 @@ class EvidencijaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Evidencija
-        fields = ['id', 'zaposleni', 'zaposleni_detail', 'tip', 'vreme', 'qr_token']
+        fields = ['evidencija_id', 'zaposleni', 'zaposleni_detail', 'tip', 'vreme', 'qr_token']
         read_only_fields = ['zaposleni', 'tip', 'vreme', 'qr_token']
 
 
@@ -186,7 +186,7 @@ class ZadatakSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zadatak
         fields = [
-            'id', 'naslov', 'opis', 'datum_kreiranja', 'rok', 'status',
+            'zadatak_id', 'naslov', 'opis', 'datum_kreiranja', 'rok', 'status',
             'kreirao', 'kreirao_detail', 'dodeljeni', 'dodeljeni_detail',
         ]
         read_only_fields = ['datum_kreiranja', 'status', 'kreirao']

@@ -41,6 +41,11 @@ export async function dohvatiZaposlene() {
   const { data } = await client.get('/admin/zaposleni/')
   return data
 }
+// GET /menadzer/zaposleni/ -> [radnik]  (Menadzer/Admin)
+export async function dohvatiRadnikeZaMenadzera() {
+  const { data } = await client.get('/menadzer/zaposleni/')
+  return data
+}
 
 // POST /menadzer/timovi/:timId/dodaj-radnika/  ->  tim
 export async function dodajRadnikaUTim(timId, zaposleniId) {

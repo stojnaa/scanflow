@@ -15,7 +15,7 @@ urlpatterns = [
     path('molbe/moje/<int:zaposleni_id>/', views.moje_molbe, name='moje_molbe'),
 
     path('smene/moje/<int:zaposleni_id>/', views.moje_smene, name='moje_smene'),
-
+path('menadzer/zaposleni/', views.menadzer_lista_radnika, name='menadzer-lista-radnika'),
     path('menadzer/timovi/<int:tim_id>/dodaj-radnika/', views.dodaj_radnika_u_tim, name='dodaj_radnika_u_tim'),
     path('menadzer/zaposleni/<int:zaposleni_id>/status/', views.promeni_status_zaposlenog, name='promeni_status_zaposlenog'),
 

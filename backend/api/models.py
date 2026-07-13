@@ -40,15 +40,19 @@ class Zaposleni(models.Model):
 
 
 class Tim(models.Model):
+    tim_id = models.AutoField(primary_key=True, db_column='tim_id')
+
     naziv = models.CharField(max_length=100)
-    # menadzer_id -> Zaposleni; U:C (na update kaskadno), D:R (brisanje zabranjeno -> PROTECT)
+
+    # menadzer_id -> Zaposleni
     menadzer = models.ForeignKey(
         Zaposleni,
         on_delete=models.PROTECT,
         related_name='timovi_menadzer',
         db_column='menadzer_id',
     )
-    # M:N preko vezne tabele TIM_ZAPOSLENI (bez dodatnih atributa -> obican ManyToManyField)
+
+    # M:N preko vezne tabele tim_zaposleni
     clanovi = models.ManyToManyField(
         Zaposleni,
         related_name='timovi',
@@ -64,6 +68,8 @@ class Tim(models.Model):
 
 
 class Zadatak(models.Model):
+    zadatak_id = models.AutoField(primary_key=True, db_column='zadatak_id')
+
     class Status(models.TextChoices):
         TO_DO = 'TO_DO', 'To Do'
         IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
@@ -74,6 +80,7 @@ class Zadatak(models.Model):
     datum_kreiranja = models.DateTimeField(auto_now_add=True)
     rok = models.DateTimeField()
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.TO_DO)
+
     # kreirao_id -> Zaposleni; D:R -> PROTECT
     kreirao = models.ForeignKey(
         Zaposleni,
@@ -81,7 +88,8 @@ class Zadatak(models.Model):
         related_name='kreirani_zadaci',
         db_column='kreirao_id',
     )
-    # M:N preko vezne tabele ZADATAK_ZAPOSLENI (bez dodatnih atributa)
+
+    # M:N preko vezne tabele zadatak_zaposleni
     dodeljeni = models.ManyToManyField(
         Zaposleni,
         related_name='zadaci',
@@ -174,6 +182,8 @@ class Molba(models.Model):
 
 
 class QrTerminal(models.Model):
+    terminal_id = models.AutoField(primary_key=True, db_column='terminal_id')
+
     naziv = models.CharField(max_length=100)
     lokacija = models.CharField(max_length=100)
     aktivan = models.BooleanField(default=True)
@@ -186,11 +196,14 @@ class QrTerminal(models.Model):
 
 
 class QrToken(models.Model):
+    qr_token_id = models.AutoField(primary_key=True, db_column='qr_token_id')
+
     token_hash = models.CharField(max_length=255)
     vreme_generisanja = models.DateTimeField(auto_now_add=True)
     vreme_isteka = models.DateTimeField()
     aktivan = models.BooleanField(default=True)
-    # terminal_id -> QR_Terminal; D:C (kaskadno brisanje)
+
+    # terminal_id -> QrTerminal; D:C
     terminal = models.ForeignKey(
         QrTerminal,
         on_delete=models.CASCADE,
@@ -202,10 +215,10 @@ class QrToken(models.Model):
         db_table = 'qr_token'
 
     def __str__(self):
-        return f'Token {self.id} ({"aktivan" if self.aktivan else "neaktivan"})'
-
-
+        return f'Token {self.qr_token_id} ({"aktivan" if self.aktivan else "neaktivan"})'
 class Evidencija(models.Model):
+    evidencija_id = models.AutoField(primary_key=True, db_column='evidencija_id')
+
     class Tip(models.TextChoices):
         CHECK_IN = 'CHECK_IN', 'Check in'
         CHECK_OUT = 'CHECK_OUT', 'Check out'
@@ -217,8 +230,10 @@ class Evidencija(models.Model):
         related_name='evidencije',
         db_column='zaposleni_id',
     )
+
     tip = models.CharField(max_length=10, choices=Tip.choices)
     vreme = models.DateTimeField(auto_now_add=True)
+
     # qr_token_id -> QrToken; D:R -> PROTECT
     qr_token = models.ForeignKey(
         QrToken,
@@ -232,8 +247,6 @@ class Evidencija(models.Model):
 
     def __str__(self):
         return f'{self.zaposleni} - {self.tip} @ {self.vreme}'
-
-
 class Obavestenje(models.Model):
     obavestenje_id = models.AutoField(primary_key=True, db_column='obavestenje_id')
     naslov = models.CharField(max_length=100)

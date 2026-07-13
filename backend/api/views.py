@@ -99,6 +99,16 @@ def lista_timova(request):
     timovi = Tim.objects.all().order_by('naziv')
     return Response(TimSerializer(timovi, many=True).data)
 
+@api_view(['GET'])
+@permission_classes([JeMenadzerIliAdmin])
+def menadzer_lista_radnika(request):
+    radnici = Zaposleni.objects.filter(
+        uloga=Zaposleni.Uloga.RADNIK,
+        aktivan=True
+    ).order_by('prezime', 'ime')
+
+    serializer = ZaposleniSerializer(radnici, many=True)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([JeMenadzerIliAdmin])
@@ -412,7 +422,7 @@ def qr_kod_za_terminal(request, terminal_id):
 
     sada = timezone.now()
     aktivan_token = terminal.tokeni.filter(aktivan=True, vreme_isteka__gt=sada).order_by('-vreme_generisanja').first()
-    sirovi_token = aktivan_token and cache.get(_cache_key(terminal.id))
+    sirovi_token = aktivan_token and cache.get(_cache_key(terminal.terminal_id))
 
     if aktivan_token is None or sirovi_token is None:
         QrToken.objects.filter(terminal=terminal, aktivan=True).update(aktivan=False)
@@ -423,11 +433,11 @@ def qr_kod_za_terminal(request, terminal_id):
             token_hash=_hash_token(sirovi_token),
             vreme_isteka=sada + timedelta(seconds=QR_TOKEN_TRAJANJE_SEKUNDI),
         )
-        cache.set(_cache_key(terminal.id), sirovi_token, timeout=QR_TOKEN_TRAJANJE_SEKUNDI)
+        cache.set(_cache_key(terminal.terminal_id), sirovi_token, timeout=QR_TOKEN_TRAJANJE_SEKUNDI)
 
     return Response({
         'token': sirovi_token,
-        'terminal': terminal.id,
+        'terminal': terminal.terminal_id,
         'vreme_isteka': aktivan_token.vreme_isteka,
     })
 
@@ -598,7 +608,7 @@ def admin_statistika(request):
     ukupno_sati = sum(_sati_izmedju(d, o) for _, d, o in _zavrsene_smene())
 
     zadaci_po_statusu = dict(
-        Zadatak.objects.values_list('status').annotate(broj=Count('id')).order_by()
+        Zadatak.objects.values_list('status').annotate(broj=Count('zadatak_id')).order_by()
     )
     zadaci_po_statusu = {status_key: broj for status_key, broj in zadaci_po_statusu.items()}
 

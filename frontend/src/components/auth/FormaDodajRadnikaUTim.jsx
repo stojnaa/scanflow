@@ -84,7 +84,7 @@ function FormaDodajRadnikaUTim({ zaposleni, timovi, onDodato }) {
                     Izaberite tim...
                   </option>
                   {timovi.map((tim) => (
-                    <option key={tim.id} value={tim.id}>
+                    <option key={tim.tim_id} value={tim.tim_id}>
                       {tim.naziv}
                     </option>
                   ))}
