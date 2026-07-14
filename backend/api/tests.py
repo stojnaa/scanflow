@@ -87,3 +87,116 @@ class ZaposleniModelTest(APITestCase):
             response.status_code,
             status.HTTP_401_UNAUTHORIZED,
         )
+
+class RegistracijaTest(APITestCase):
+    """Jednostavni testovi registracije."""
+
+    def validni_podaci(self):
+        return {
+            'ime': 'Ana',
+            'prezime': 'Anic',
+            'datum_rodjenja': '1998-03-15',
+            'datum_zaposlenja': '2022-06-01',
+            'telefon': '0611234567',
+            'adresa': 'Neka adresa 2',
+            'kor_ime': 'aanic',
+            'mejl': 'ana@example.com',
+            'sifra': 'sifra1234',
+        }
+
+    def test_uspesna_registracija(self):
+        response = self.client.post(
+            '/api/auth/registracija/',
+            self.validni_podaci(),
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+        )
+        self.assertIn('token', response.data)
+        self.assertEqual(Zaposleni.objects.count(), 1)
+
+    def test_registracija_bez_imena(self):
+        podaci = self.validni_podaci()
+        podaci['ime'] = ''
+
+        response = self.client.post(
+            '/api/auth/registracija/',
+            podaci,
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(Zaposleni.objects.count(), 0)
+
+    def test_registracija_bez_lozinke(self):
+        podaci = self.validni_podaci()
+        podaci['sifra'] = ''
+
+        response = self.client.post(
+            '/api/auth/registracija/',
+            podaci,
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+    def test_duplikat_korisnickog_imena(self):
+        prvi_response = self.client.post(
+            '/api/auth/registracija/',
+            self.validni_podaci(),
+            format='json',
+        )
+
+        drugi_podaci = self.validni_podaci()
+        drugi_podaci['mejl'] = 'drugi@example.com'
+
+        drugi_response = self.client.post(
+            '/api/auth/registracija/',
+            drugi_podaci,
+            format='json',
+        )
+
+        self.assertEqual(
+            prvi_response.status_code,
+            status.HTTP_201_CREATED,
+        )
+        self.assertEqual(
+            drugi_response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(Zaposleni.objects.count(), 1)
+
+    def test_duplikat_mejla(self):
+        prvi_response = self.client.post(
+            '/api/auth/registracija/',
+            self.validni_podaci(),
+            format='json',
+        )
+
+        drugi_podaci = self.validni_podaci()
+        drugi_podaci['kor_ime'] = 'drugi.korisnik'
+
+        drugi_response = self.client.post(
+            '/api/auth/registracija/',
+            drugi_podaci,
+            format='json',
+        )
+
+        self.assertEqual(
+            prvi_response.status_code,
+            status.HTTP_201_CREATED,
+        )
+        self.assertEqual(
+            drugi_response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(Zaposleni.objects.count(), 1)
