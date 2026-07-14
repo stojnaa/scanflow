@@ -37,7 +37,23 @@ class LoginPage:
         return self
 
     def posalji(self):
-        self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+        dugme = self.driver.find_element(
+            By.CSS_SELECTOR,
+            "button[type='submit']"
+        )
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            dugme,
+        )
+
+        WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "button[type='submit']")
+            )
+        )
+
+        dugme.click()
         return self
 
     def procitaj_gresku(self, timeout=5):
@@ -111,7 +127,21 @@ class RegistracijaPage:
         return f"{dan.zfill(2)}{mesec.zfill(2)}{godina}"
 
     def posalji(self):
-        self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+        dugme = self.driver.find_element(
+            By.CSS_SELECTOR,
+            "button[type='submit']"
+        )
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            dugme,
+        )
+
+        self.driver.execute_script(
+            "arguments[0].click();",
+            dugme,
+        )
+
         return self
 
     def procitaj_gresku(self, timeout=5):
@@ -489,9 +519,30 @@ class MenadzerOrganizacijaPage:
             tip_smene_prikaz
         )
 
-        d.find_element(
-            By.XPATH, "//button[normalize-space(text())='Dodaj u smenu']"
-        ).click()
+        dugme = d.find_element(
+            By.XPATH,
+            "//button[normalize-space(text())='Dodaj u smenu']"
+        )
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            dugme,
+        )
+
+        WebDriverWait(self.driver, 5).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    "//button[normalize-space(text())='Dodaj u smenu']",
+                )
+            )
+        )
+
+        self.driver.execute_script(
+            "arguments[0].click();",
+            dugme,
+        )
+
         return self
 
     def procitaj_uspeh_smene(self, timeout=5):
