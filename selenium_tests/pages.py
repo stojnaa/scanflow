@@ -27,7 +27,7 @@ class LoginPage:
 
     def popuni(self, kor_ime_ili_mejl, lozinka):
         self.driver.find_element(
-            By.CSS_SELECTOR, "input[placeholder='npr. ana.anic']"
+            By.CSS_SELECTOR, "input[placeholder='Vaše korisničko ime']"
         ).send_keys(kor_ime_ili_mejl)
 
         self.driver.find_element(
@@ -82,11 +82,23 @@ class RegistracijaPage:
         datumi[1].click()
         datumi[1].send_keys(self._u_ddmmyyyy(datum_zaposlenja_ddmmyyyy))
 
-        d.find_element(By.CSS_SELECTOR, "input[placeholder='npr. ana.anic']").send_keys(kor_ime)
-        d.find_element(By.CSS_SELECTOR, "input[placeholder='ime@primer.rs']").send_keys(mejl)
-        d.find_element(By.CSS_SELECTOR, "input[placeholder='Ulica i broj, grad']").send_keys(adresa)
+        d.find_element(
+            By.CSS_SELECTOR,
+            "input[placeholder='Vaše korisničko ime']",
+        ).send_keys(kor_ime)
+        d.find_element(
+            By.CSS_SELECTOR,
+            "input[placeholder='Vaša email adresa']",
+        ).send_keys(mejl)
+        d.find_element(
+            By.CSS_SELECTOR,
+            "input[placeholder='Vaša adresa']",
+        ).send_keys(adresa)
         d.find_element(By.CSS_SELECTOR, "input[placeholder='Najmanje 8 karaktera']").send_keys(sifra)
-        d.find_element(By.CSS_SELECTOR, "input[placeholder='+381 60 000 0000']").send_keys(telefon)
+        d.find_element(
+            By.CSS_SELECTOR,
+            "input[placeholder='Vaš telefon']",
+        ).send_keys(telefon)
 
         return self
 
