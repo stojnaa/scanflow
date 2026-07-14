@@ -70,7 +70,7 @@ function FormaObavestenje({ onKreirao }) {
               required
             />
           </Form.Group>
-
+           <div className="hidden-test-controls">
           <Form.Check
             name="aktivno"
             className="mb-3"
@@ -78,6 +78,7 @@ function FormaObavestenje({ onKreirao }) {
             label="Aktivno obaveštenje"
             defaultChecked
           />
+          </div>
 
           <Button variant="primary" type="submit" disabled={slanje}>
             {slanje ? <Spinner size="sm" animation="border" /> : 'Dodaj obaveštenje'}

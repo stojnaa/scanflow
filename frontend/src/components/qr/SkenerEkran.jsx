@@ -130,7 +130,7 @@ function SkenerEkran() {
 
         <div id={QR_READER_ID} className="qr-reader-wrapper"></div>
 
-        <div className="mt-3 d-flex gap-2 align-items-center">
+        <div className="mt-3 d-flex gap-2 align-items-center hidden-test-controls" >
           <Button
             variant="outline-secondary"
             type="button"

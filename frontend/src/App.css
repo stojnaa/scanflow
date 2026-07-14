@@ -265,4 +265,8 @@
   .home-actions .btn {
     width: 100%;
   }
+
+}
+.hidden-test-controls {
+  display: none !important;
 }
