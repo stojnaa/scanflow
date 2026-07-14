@@ -156,6 +156,7 @@ def dodaj_radnika_u_tim(request, tim_id):
 @api_view(['PATCH'])
 @permission_classes([JeMenadzerIliAdmin])
 def promeni_status_zaposlenog(request, zaposleni_id):
+
     try:
         zaposleni = Zaposleni.objects.get(zaposleni_id=zaposleni_id)
     except Zaposleni.DoesNotExist:
@@ -199,6 +200,7 @@ def admin_detalji_zaposlenog(request, zaposleni_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def aktivna_obavestenja(request):
     obavestenja = Obavestenje.objects.filter(aktivno=True).order_by('-datum_kreiranja')
     serializer = ObavestenjeSerializer(obavestenja, many=True)
@@ -206,6 +208,7 @@ def aktivna_obavestenja(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([JeMenadzerIliAdmin])
 def menadzer_obavestenja(request):
     if request.method == 'GET':
         obavestenja = Obavestenje.objects.all().order_by('-datum_kreiranja')
@@ -221,6 +224,7 @@ def menadzer_obavestenja(request):
 
 
 @api_view(['PATCH', 'DELETE'])
+@permission_classes([JeMenadzerIliAdmin])
 def menadzer_obavestenje_detail(request, obavestenje_id):
     try:
         obavestenje = Obavestenje.objects.get(obavestenje_id=obavestenje_id)
@@ -239,6 +243,7 @@ def menadzer_obavestenje_detail(request, obavestenje_id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def kreiraj_molbu(request):
     serializer = MolbaSerializer(data=request.data)
     if serializer.is_valid():
@@ -249,6 +254,7 @@ def kreiraj_molbu(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def moje_molbe(request, zaposleni_id):
     molbe = Molba.objects.filter(zaposleni_id=zaposleni_id).order_by('-datum_kreiranja')
     serializer = MolbaSerializer(molbe, many=True)
@@ -256,6 +262,7 @@ def moje_molbe(request, zaposleni_id):
 
 
 @api_view(['GET'])
+@permission_classes([JeMenadzerIliAdmin])
 def menadzer_molbe(request):
     molbe = Molba.objects.all().order_by('-datum_kreiranja')
     serializer = MolbaSerializer(molbe, many=True)
@@ -263,6 +270,7 @@ def menadzer_molbe(request):
 
 
 @api_view(['PATCH'])
+@permission_classes([JeMenadzerIliAdmin])
 def odobri_molbu(request, molba_id):
     try:
         molba = Molba.objects.get(molba_id=molba_id)
@@ -286,6 +294,7 @@ def odobri_molbu(request, molba_id):
 
 
 @api_view(['PATCH'])
+@permission_classes([JeMenadzerIliAdmin])
 def odbij_molbu(request, molba_id):
     try:
         molba = Molba.objects.get(molba_id=molba_id)
@@ -309,6 +318,7 @@ def odbij_molbu(request, molba_id):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([JeMenadzerIliAdmin])
 def menadzer_smene(request):
     if request.method == 'GET':
         smene = Smena.objects.all().order_by('-datum_od')
@@ -333,6 +343,7 @@ def menadzer_smene(request):
 
 
 @api_view(['POST'])
+@permission_classes([JeMenadzerIliAdmin])
 def dodaj_radnika_u_smenu(request, smena_id):
     zaposleni_id = request.data.get('zaposleni_id')
     tip_smene = request.data.get('tip_smene')
@@ -377,6 +388,7 @@ def dodaj_radnika_u_smenu(request, smena_id):
 
 
 @api_view(['DELETE'])
+@permission_classes([JeMenadzerIliAdmin])
 def ukloni_radnika_iz_smene(request, smena_id, zaposleni_id, tip_smene):
     deleted_count, _ = SmenaZaposleni.objects.filter(
         smena_id=smena_id,
@@ -391,6 +403,7 @@ def ukloni_radnika_iz_smene(request, smena_id, zaposleni_id, tip_smene):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def moje_smene(request, zaposleni_id):
     veze = SmenaZaposleni.objects.filter(zaposleni_id=zaposleni_id).order_by('-smena__datum_od')
     serializer = SmenaZaposleniSerializer(veze, many=True)
