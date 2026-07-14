@@ -200,3 +200,100 @@ class RegistracijaTest(APITestCase):
             status.HTTP_400_BAD_REQUEST,
         )
         self.assertEqual(Zaposleni.objects.count(), 1)
+
+class PrijavaTest(APITestCase):
+    """Jednostavni testovi prijave."""
+
+    def setUp(self):
+        self.zaposleni = Zaposleni.objects.create(
+            ime='Petar',
+            prezime='Petrovic',
+            datum_rodjenja=date(1990, 1, 1),
+            datum_zaposlenja=date(2019, 1, 1),
+            telefon='0621234567',
+            adresa='Neka adresa 3',
+            kor_ime='ppetrovic',
+            mejl='petar@example.com',
+            sifra_hash=make_password('ispravnasifra'),
+        )
+
+    def test_prijava_pogresna_sifra(self):
+        response = self.client.post(
+            '/api/auth/prijava/',
+            {
+                'kor_ime_ili_mejl': 'ppetrovic',
+                'sifra': 'pogresnasifra',
+            },
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
+    def test_uspesna_prijava_korisnickim_imenom(self):
+        response = self.client.post(
+            '/api/auth/prijava/',
+            {
+                'kor_ime_ili_mejl': 'ppetrovic',
+                'sifra': 'ispravnasifra',
+            },
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+        self.assertIn('token', response.data)
+        self.assertIn('zaposleni', response.data)
+
+    def test_uspesna_prijava_mejlom(self):
+        response = self.client.post(
+            '/api/auth/prijava/',
+            {
+                'kor_ime_ili_mejl': 'petar@example.com',
+                'sifra': 'ispravnasifra',
+            },
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+        self.assertIn('token', response.data)
+
+    def test_prijava_nepostojeceg_korisnika(self):
+        response = self.client.post(
+            '/api/auth/prijava/',
+            {
+                'kor_ime_ili_mejl': 'nepostojeci',
+                'sifra': 'ispravnasifra',
+            },
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
+    def test_neaktivan_korisnik_ne_moze_da_se_prijavi(self):
+        self.zaposleni.aktivan = False
+        self.zaposleni.save()
+
+        response = self.client.post(
+            '/api/auth/prijava/',
+            {
+                'kor_ime_ili_mejl': 'ppetrovic',
+                'sifra': 'ispravnasifra',
+            },
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
