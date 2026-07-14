@@ -251,7 +251,7 @@ function RegistracijaForma() {
             <Form.Label>Korisničko ime</Form.Label>
 
             <Form.Control
-              placeholder="npr. ana.anic"
+              placeholder="Vaše korisničko ime"
               value={podaci.kor_ime}
               isInvalid={Boolean(
                 greskePolja.kor_ime,
@@ -269,7 +269,7 @@ function RegistracijaForma() {
 
             <Form.Control
               type="email"
-              placeholder="ime@primer.rs"
+              placeholder="Vaša email adresa"
               value={podaci.mejl}
               isInvalid={Boolean(greskePolja.mejl)}
               onChange={promena('mejl')}
@@ -284,7 +284,7 @@ function RegistracijaForma() {
             <Form.Label>Adresa</Form.Label>
 
             <Form.Control
-              placeholder="Ulica i broj, grad"
+              placeholder="Vaša adresa"
               value={podaci.adresa}
               isInvalid={Boolean(
                 greskePolja.adresa,
@@ -323,7 +323,7 @@ function RegistracijaForma() {
                 <Form.Label>Telefon</Form.Label>
 
                 <Form.Control
-                  placeholder="+381 60 000 0000"
+                  placeholder="Vaš telefon"
                   value={podaci.telefon}
                   isInvalid={Boolean(
                     greskePolja.telefon,

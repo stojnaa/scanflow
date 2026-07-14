@@ -79,7 +79,7 @@ function LoginForma() {
             <Form.Label>Korisničko ime ili mejl</Form.Label>
 
             <Form.Control
-              placeholder="npr. ana.anic"
+              placeholder="Vaše korisničko ime"
               value={korImeIliMejl}
               isInvalid={Boolean(
                 greskePolja.korImeIliMejl,

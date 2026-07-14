@@ -114,26 +114,49 @@ function HomePage() {
   const { prijavljen } = useAuth()
 
   return (
-    <Container>
-      <Card className="shadow-sm">
-        <Card.Body>
-          <h1>ScanFlow</h1>
-          <p className="text-muted mb-4">
-            Frontend prikazi sistema za evidenciju rada: identitet i timovi,
-            organizacija rada, evidencija i zadaci.
+    <Container className="home-page">
+      <Card className="home-card shadow-sm">
+        <Card.Body className="text-center">
+          <img
+            src="/logo.png"
+            alt="ScanFlow logo"
+            className="home-logo"
+          />
+
+          <h1 className="home-title">ScanFlow</h1>
+
+          <p className="home-description">
+            Jednostavno evidentiranje radnog vremena, organizacija timova
+            i praćenje zadataka na jednom mestu.
           </p>
 
-          <div className="d-flex gap-3 flex-wrap">
+          <div className="home-actions">
             {prijavljen ? (
-              <Button as={Link} to="/profil" variant="primary">
+              <Button
+                as={Link}
+                to="/profil"
+                variant="primary"
+                size="lg"
+              >
                 Moj profil
               </Button>
             ) : (
               <>
-                <Button as={Link} to="/login" variant="primary">
+                <Button
+                  as={Link}
+                  to="/login"
+                  variant="primary"
+                  size="lg"
+                >
                   Prijava
                 </Button>
-                <Button as={Link} to="/registracija" variant="outline-primary">
+
+                <Button
+                  as={Link}
+                  to="/registracija"
+                  variant="outline-primary"
+                  size="lg"
+                >
                   Registracija
                 </Button>
               </>

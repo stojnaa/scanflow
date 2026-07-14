@@ -119,3 +119,150 @@
 .qr-reader-wrapper img {
   display: none;
 }
+
+.employee-table {
+  margin-bottom: 0;
+}
+
+.employee-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.employee-table tbody td {
+  border-color: #edf0f2;
+  padding-bottom: 0.9rem;
+  padding-top: 0.9rem;
+}
+
+.employee-name {
+  color: #212529;
+  font-weight: 600;
+}
+
+.employee-username {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+
+.employee-detail-section {
+  border: 1px solid #e7eaed;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.employee-detail-title {
+  border-bottom: 1px solid #e7eaed;
+  color: #343a40;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.employee-detail-item {
+  background-color: #f8f9fa;
+  border-radius: 0.55rem;
+  height: 100%;
+  padding: 0.8rem 0.9rem;
+}
+
+.employee-detail-item span {
+  color: #6c757d;
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.employee-detail-item strong {
+  color: #212529;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.employee-role-box {
+  background-color: #f8f9fa;
+  border: 1px solid #e7eaed;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.home-page {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.home-card {
+  width: 100%;
+  max-width: 700px;
+  border: none;
+  border-radius: 1.5rem;
+}
+
+.home-card .card-body {
+  padding: 3rem 2rem;
+}
+
+.home-logo {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.home-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.home-description {
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  color: #6c757d;
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.home-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.home-actions .btn {
+  min-width: 150px;
+}
+
+@media (max-width: 576px) {
+  .home-card .card-body {
+    padding: 2rem 1.25rem;
+  }
+
+  .home-logo {
+    width: 130px;
+    height: 130px;
+  }
+
+  .home-title {
+    font-size: 2.2rem;
+  }
+
+  .home-description {
+    font-size: 1rem;
+  }
+
+  .home-actions {
+    flex-direction: column;
+  }
+
+  .home-actions .btn {
+    width: 100%;
+  }
+}

@@ -4,7 +4,10 @@ import {
   Badge,
   Button,
   Card,
+  Col,
   Form,
+  Modal,
+  Row,
   Spinner,
   Table,
 } from 'react-bootstrap'
@@ -18,9 +21,22 @@ function nazivUloge(uloga) {
   return 'Radnik'
 }
 
-function imenaTimova(timovi) {
-  if (!timovi || timovi.length === 0) return '—'
-  return timovi.map((t) => t.naziv).join(', ')
+function imenaTimova(radnik) {
+  const timovi = radnik.timovi ?? radnik.timovi_detail
+
+  if (!timovi || timovi.length === 0) {
+    return 'Nije član nijednog tima'
+  }
+
+  return timovi.map((tim) => tim.naziv).join(', ')
+}
+
+function formatirajDatum(datum) {
+  if (!datum) return '—'
+
+  return new Date(`${datum}T00:00:00`).toLocaleDateString(
+    'sr-RS',
+  )
 }
 
 function ListaZaposlenih({
@@ -31,39 +47,58 @@ function ListaZaposlenih({
 }) {
   const { korisnik, uloga } = useAuth()
 
-  const [noveUloge, setNoveUloge] = useState({})
-  const [menjaSeId, setMenjaSeId] = useState(null)
-  const [greskaPromene, setGreskaPromene] = useState('')
+  const [izabraniRadnik, setIzabraniRadnik] =
+    useState(null)
+
+  const [novaUloga, setNovaUloga] = useState('')
+  const [menjaSeUloga, setMenjaSeUloga] =
+    useState(false)
+
+  const [greskaPromene, setGreskaPromene] =
+    useState('')
+
   const [uspeh, setUspeh] = useState('')
 
-  const promeniUlogu = async (radnik) => {
-    const novaUloga =
-      noveUloge[radnik.zaposleni_id] ?? radnik.uloga
+  const otvoriDetalje = (radnik) => {
+    setIzabraniRadnik(radnik)
+    setNovaUloga(radnik.uloga)
+    setGreskaPromene('')
+    setUspeh('')
+  }
 
-    if (novaUloga === radnik.uloga) {
+  const zatvoriDetalje = () => {
+    if (menjaSeUloga) return
+
+    setIzabraniRadnik(null)
+    setNovaUloga('')
+    setGreskaPromene('')
+    setUspeh('')
+  }
+
+  const sacuvajUlogu = async () => {
+    if (!izabraniRadnik) return
+
+    if (novaUloga === izabraniRadnik.uloga) {
       setGreskaPromene('Izaberite novu ulogu.')
       return
     }
 
     setGreskaPromene('')
     setUspeh('')
-    setMenjaSeId(radnik.zaposleni_id)
+    setMenjaSeUloga(true)
 
     try {
-      await promeniUloguZaposlenog(
-        radnik.zaposleni_id,
-        novaUloga,
-      )
+      const izmenjeniRadnik =
+        await promeniUloguZaposlenog(
+          izabraniRadnik.zaposleni_id,
+          novaUloga,
+        )
+
+      setIzabraniRadnik(izmenjeniRadnik)
 
       setUspeh(
-        `Uloga zaposlenog ${radnik.ime} ${radnik.prezime} je uspešno promenjena.`,
+        `Uloga zaposlenog ${izmenjeniRadnik.ime} ${izmenjeniRadnik.prezime} je uspešno promenjena.`,
       )
-
-      setNoveUloge((prethodno) => {
-        const kopija = { ...prethodno }
-        delete kopija[radnik.zaposleni_id]
-        return kopija
-      })
 
       await onPromenjeno?.()
     } catch (err) {
@@ -74,100 +109,93 @@ function ListaZaposlenih({
         ),
       )
     } finally {
-      setMenjaSeId(null)
+      setMenjaSeUloga(false)
     }
   }
 
+  const jeSopstveniNalog =
+    izabraniRadnik?.zaposleni_id ===
+    korisnik?.zaposleni_id
+
   return (
-    <Card className="shadow-sm mb-4">
-      <Card.Body>
-        <Card.Title>Zaposleni</Card.Title>
+    <>
+      <Card className="shadow-sm mb-4">
+        <Card.Body>
+          <Card.Title>Zaposleni</Card.Title>
 
-        <Card.Text className="text-muted">
-          Pregled svih zaposlenih sa ulogom i pripadajućim timovima.
-        </Card.Text>
+          <Card.Text className="text-muted">
+            Pregled zaposlenih. Kliknite na detalje za
+            potpune informacije.
+          </Card.Text>
 
-        {greskaPromene && (
-          <Alert
-            variant="danger"
-            dismissible
-            onClose={() => setGreskaPromene('')}
-          >
-            {greskaPromene}
-          </Alert>
-        )}
+          {ucitavanje && (
+            <div className="text-center py-4">
+              <Spinner animation="border" size="sm" />{' '}
+              Učitavanje...
+            </div>
+          )}
 
-        {uspeh && (
-          <Alert
-            variant="success"
-            dismissible
-            onClose={() => setUspeh('')}
-          >
-            {uspeh}
-          </Alert>
-        )}
+          {!ucitavanje && greska && (
+            <Alert variant="warning">{greska}</Alert>
+          )}
 
-        {ucitavanje && (
-          <div className="text-center py-3">
-            <Spinner animation="border" size="sm" /> Učitavanje...
-          </div>
-        )}
-
-        {!ucitavanje && greska && (
-          <Alert variant="warning">{greska}</Alert>
-        )}
-
-        {!ucitavanje && !greska && (
-          <Table responsive bordered hover>
-            <thead>
-              <tr>
-                <th>Ime i prezime</th>
-                <th>Korisničko ime</th>
-                <th>Mejl</th>
-                <th>Uloga</th>
-                <th>Timovi</th>
-                <th>Status</th>
-                <th>Promena uloge</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {zaposleni.length === 0 ? (
+          {!ucitavanje && !greska && (
+            <Table
+              responsive
+              hover
+              className="align-middle employee-table"
+            >
+              <thead>
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="organization-empty"
-                  >
-                    Nema zaposlenih za prikaz.
-                  </td>
+                  <th>Zaposleni</th>
+                  <th>Uloga</th>
+                  <th>Status</th>
+                  <th></th>
                 </tr>
-              ) : (
-                zaposleni.map((radnik) => {
-                  const izabranaUloga =
-                    noveUloge[radnik.zaposleni_id] ??
-                    radnik.uloga
+              </thead>
 
-                  const jeSopstveniNalog =
-                    radnik.zaposleni_id ===
-                    korisnik?.zaposleni_id
-
-                  return (
+              <tbody>
+                {zaposleni.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="organization-empty"
+                    >
+                      Nema zaposlenih za prikaz.
+                    </td>
+                  </tr>
+                ) : (
+                  zaposleni.map((radnik) => (
                     <tr key={radnik.zaposleni_id}>
                       <td>
-                        {radnik.ime} {radnik.prezime}
-                      </td>
+                        <div className="employee-name">
+                          {radnik.ime} {radnik.prezime}
+                        </div>
 
-                      <td>{radnik.kor_ime}</td>
-                      <td>{radnik.mejl}</td>
-                      <td>{nazivUloge(radnik.uloga)}</td>
-                      <td>
-                        {imenaTimova(
-                          radnik.timovi_detail,
-                        )}
+                        <div className="employee-username">
+                          @{radnik.kor_ime}
+                        </div>
                       </td>
 
                       <td>
                         <Badge
+                            className="text-white"
+                          bg={
+                            radnik.uloga === 'ADMIN'
+                              ? 'danger'
+                              : radnik.uloga ===
+                                  'MENADZER'
+                                ? 'primary'
+                                : 'secondary'
+                          }
+                        >
+                          {nazivUloge(radnik.uloga)}
+                        </Badge>
+                      </td>
+
+                      <td>
+                        <Badge
+                        className="text-white"
                           bg={
                             radnik.aktivan
                               ? 'success'
@@ -180,71 +208,281 @@ function ListaZaposlenih({
                         </Badge>
                       </td>
 
-                      <td>
-                        {jeSopstveniNalog ? (
-                          <span className="text-muted">
-                            Sopstvena uloga
-                          </span>
-                        ) : (
-                          <div className="d-flex gap-2">
-                            <Form.Select
-                              size="sm"
-                              value={izabranaUloga}
-                              onChange={(e) =>
-                                setNoveUloge(
-                                  (prethodno) => ({
-                                    ...prethodno,
-                                    [radnik.zaposleni_id]:
-                                      e.target.value,
-                                  }),
-                                )
-                              }
-                            >
-                              <option value="RADNIK">
-                                Radnik
-                              </option>
-
-                              <option value="MENADZER">
-                                Menadžer
-                              </option>
-
-                              {uloga === 'ADMIN' && (
-                                <option value="ADMIN">
-                                  Administrator
-                                </option>
-                              )}
-                            </Form.Select>
-
-                            <Button
-                              size="sm"
-                              variant="primary"
-                              disabled={
-                                menjaSeId ===
-                                  radnik.zaposleni_id ||
-                                izabranaUloga ===
-                                  radnik.uloga
-                              }
-                              onClick={() =>
-                                promeniUlogu(radnik)
-                              }
-                            >
-                              {menjaSeId ===
-                              radnik.zaposleni_id
-                                ? 'Čuvanje...'
-                                : 'Sačuvaj'}
-                            </Button>
-                          </div>
-                        )}
+                      <td className="text-end">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() =>
+                            otvoriDetalje(radnik)
+                          }
+                        >
+                          Detalji
+                        </Button>
                       </td>
                     </tr>
-                  )
-                })
+                  ))
+                )}
+              </tbody>
+            </Table>
+          )}
+        </Card.Body>
+      </Card>
+
+      <Modal
+        show={Boolean(izabraniRadnik)}
+        onHide={zatvoriDetalje}
+        centered
+        size="lg"
+        backdrop={menjaSeUloga ? 'static' : true}
+        keyboard={!menjaSeUloga}
+      >
+        {izabraniRadnik && (
+          <>
+            <Modal.Header closeButton>
+              <div>
+                <Modal.Title>
+                  {izabraniRadnik.ime}{' '}
+                  {izabraniRadnik.prezime}
+                </Modal.Title>
+
+                <div className="text-muted mt-1">
+                  Detalji zaposlenog
+                </div>
+              </div>
+            </Modal.Header>
+
+            <Modal.Body>
+              {greskaPromene && (
+                <Alert
+                  variant="danger"
+                  dismissible
+                  onClose={() =>
+                    setGreskaPromene('')
+                  }
+                >
+                  {greskaPromene}
+                </Alert>
               )}
-            </tbody>
-          </Table>
+
+              {uspeh && (
+                <Alert
+                  variant="success"
+                  dismissible
+                  onClose={() => setUspeh('')}
+                >
+                  {uspeh}
+                </Alert>
+              )}
+
+              <div className="employee-detail-section">
+                <h6 className="employee-detail-title">
+                  Osnovni podaci
+                </h6>
+
+                <Row className="g-3">
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Ime i prezime</span>
+                      <strong>
+                        {izabraniRadnik.ime}{' '}
+                        {izabraniRadnik.prezime}
+                      </strong>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Korisničko ime</span>
+                      <strong>
+                        {izabraniRadnik.kor_ime}
+                      </strong>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Mejl</span>
+                      <strong>
+                        {izabraniRadnik.mejl || '—'}
+                      </strong>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Telefon</span>
+                      <strong>
+                        {izabraniRadnik.telefon || '—'}
+                      </strong>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Adresa</span>
+                      <strong>
+                        {izabraniRadnik.adresa || '—'}
+                      </strong>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Status</span>
+
+                      <div>
+                        <Badge
+                        className="text-white"
+                          bg={
+                            izabraniRadnik.aktivan
+                              ? 'success'
+                              : 'secondary'
+                          }
+                        >
+                          {izabraniRadnik.aktivan
+                            ? 'Aktivan'
+                            : 'Neaktivan'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Datum rođenja</span>
+                      <strong>
+                        {formatirajDatum(
+                          izabraniRadnik.datum_rodjenja,
+                        )}
+                      </strong>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Datum zaposlenja</span>
+                      <strong>
+                        {formatirajDatum(
+                          izabraniRadnik.datum_zaposlenja,
+                        )}
+                      </strong>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+
+              <div className="employee-detail-section mt-4">
+                <h6 className="employee-detail-title">
+                  Organizacija
+                </h6>
+
+                <Row className="g-3">
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Trenutna uloga</span>
+
+                      <div>
+                        <Badge
+                        className="text-white"
+                          bg={
+                            izabraniRadnik.uloga ===
+                            'ADMIN'
+                              ? 'danger'
+                              : izabraniRadnik.uloga ===
+                                  'MENADZER'
+                                ? 'primary'
+                                : 'secondary'
+                          }
+                        >
+                          {nazivUloge(
+                            izabraniRadnik.uloga,
+                          )}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <div className="employee-detail-item">
+                      <span>Timovi</span>
+                      <strong>
+                        {imenaTimova(
+                          izabraniRadnik,
+                        )}
+                      </strong>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+
+              {!jeSopstveniNalog && (
+                <div className="employee-role-box mt-4">
+                  <Form.Label className="fw-semibold">
+                    Promena uloge
+                  </Form.Label>
+
+                  <div className="d-flex flex-column flex-sm-row gap-2">
+                    <Form.Select
+                      value={novaUloga}
+                      disabled={menjaSeUloga}
+                      onChange={(e) => {
+                        setNovaUloga(e.target.value)
+                        setGreskaPromene('')
+                        setUspeh('')
+                      }}
+                    >
+                      <option value="RADNIK">
+                        Radnik
+                      </option>
+
+                      <option value="MENADZER">
+                        Menadžer
+                      </option>
+
+                      {uloga === 'ADMIN' && (
+                        <option value="ADMIN">
+                          Administrator
+                        </option>
+                      )}
+                    </Form.Select>
+
+                    <Button
+                      variant="primary"
+                      disabled={
+                        menjaSeUloga ||
+                        novaUloga ===
+                          izabraniRadnik.uloga
+                      }
+                      onClick={sacuvajUlogu}
+                    >
+                      {menjaSeUloga
+                        ? 'Čuvanje...'
+                        : 'Sačuvaj ulogu'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {jeSopstveniNalog && (
+                <Alert variant="light" className="mt-4 mb-0">
+                  Ne možete promeniti sopstvenu ulogu.
+                </Alert>
+              )}
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                onClick={zatvoriDetalje}
+                disabled={menjaSeUloga}
+              >
+                Zatvori
+              </Button>
+            </Modal.Footer>
+          </>
         )}
-      </Card.Body>
-    </Card>
+      </Modal>
+    </>
   )
 }
 
