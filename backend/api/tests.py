@@ -297,3 +297,27 @@ class PrijavaTest(APITestCase):
             response.status_code,
             status.HTTP_401_UNAUTHORIZED,
         )
+class ProfilNeautentifikovanTest(APITestCase):
+    """Testovi pristupa profilu bez tokena."""
+
+    def test_profil_bez_tokena(self):
+        response = self.client.get('/api/profil/')
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
+    def test_izmena_profila_bez_tokena(self):
+        response = self.client.patch(
+            '/api/profil/',
+            {
+                'ime': 'Novo ime',
+            },
+            format='json',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
